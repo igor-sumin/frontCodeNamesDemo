@@ -1,26 +1,17 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js App" />
+  <!-- TODO: vue-router -->
+  <login></login>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import Login from "./components/entry/login/LoginPage.vue";
+import Register from "./components/entry/registry/RegisterPage.vue";
 
 export default {
   name: "App",
   components: {
-    HelloWorld,
+    Login,
+    Register,
   },
 };
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
