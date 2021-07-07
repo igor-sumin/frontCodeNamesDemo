@@ -1,17 +1,15 @@
 <template>
   <!-- TODO: vue-router -->
-  <login></login>
+  <!-- <login></login> -->
+  <div id="app">
+    <router-view></router-view>
+  </div>
 </template>
 
 <script>
-import Login from "./components/entry/login/LoginPage.vue";
-import Register from "./components/entry/registry/RegisterPage.vue";
+// import Login from "./components/entry/LoginPage.vue";
 
 export default {
   name: "App",
-  components: {
-    Login,
-    Register,
-  },
 };
 </script>
