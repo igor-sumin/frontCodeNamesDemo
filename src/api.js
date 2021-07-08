@@ -3,17 +3,62 @@
 
 import axios from "axios";
 
-function login(form) {
-  console.log("hihihi");
+function loginUser(form, token) {
+  console.log("login");
 
+  // 1 var
   axios({
     method: "post",
     url: "http://localhost:8080/login",
-    data: { form },
-  });
+    data: form,
+  })
+
+  // // 2 var
+  // axios.post("http://localhost:8080/login", form).then((r) => {
+  //   axios.defaults.headers.common["token"] = r.data.token;
+  //   localStorage.setItem("token", JSON.stringify(r.token));
+  // });
+
+  // let token = JSON.parse(localStorage.getItem("token"));
+
+  // // 3 var  
+  // axios
+  //   .post(
+  //     "http://localhost:8080/login", {
+  //       form,
+  //     }, {
+  //       headers: {
+  //         token: token,
+  //       },
+  //     }
+  //   )
+  //   .then(function (response) {
+  //     console.log(response.data);
+  //   })
+  //   .catch(function (error) {
+  //     console.log("err: " + error);
+  //   });
 }
 
-export { login };
+export {
+  loginUser
+};
+
+// this.$http
+//   .post("http://localhost:8080/login", form)
+//   .then((response) => {
+//     window.localStorage.setItem("token", response.data.token);
+//     window.localStorage.setItem(
+//       "auth-user",
+//       JSON.stringify(response.data.user)
+//     );
+
+//     this.$route.router.go({ name: "example-component" });
+//   })
+//   .catch((errors) => {
+//     console.log(errors);
+//   });
+// }
 
 // try {
 //   this.token = JSON.parse(localStorage.getItem("token:"));

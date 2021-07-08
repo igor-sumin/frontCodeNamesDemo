@@ -13,7 +13,7 @@
           </p>
         </div>
         <div class="m-7">
-          <form @submit.prevent="userLogin">
+          <form action="">
             <div class="mb-6">
               <label
                 for="text"
@@ -32,8 +32,7 @@
                   border border-gray-300
                   rounded-md
                   focus:outline-none
-                  focus:ring
-                  focus:ring-indigo-100
+                  focus:ring focus:ring-indigo-100
                   focus:border-indigo-300
                   dark:bg-gray-700
                   dark:text-white
@@ -56,7 +55,8 @@
                   href="#!"
                   class="
                     text-sm text-gray-400
-                    focus:outline-none focus:text-indigo-500
+                    focus:outline-none
+                    focus:text-indigo-500
                     hover:text-indigo-500
                     dark:hover:text-indigo-300
                   "
@@ -75,8 +75,7 @@
                   border border-gray-300
                   rounded-md
                   focus:outline-none
-                  focus:ring
-                  focus:ring-indigo-100
+                  focus:ring focus:ring-indigo-100
                   focus:border-indigo-300
                   dark:bg-gray-700
                   dark:text-white
@@ -90,7 +89,10 @@
             </div>
             <div class="mb-6">
               <button
-                type="submit"
+                @click.prevent="userLogin"
+                :style="{
+                  disabled: `${disableLoginButton}`
+                }"
                 class="
                   w-full
                   px-3
@@ -112,7 +114,9 @@
                 href="#!"
                 class="
                   text-indigo-400
-                  focus:outline-none focus:underline focus:text-indigo-500
+                  focus:outline-none
+                  focus:underline
+                  focus:text-indigo-500
                   dark:focus:border-indigo-800
                 "
                 >Зарегистрироваться</a
@@ -126,7 +130,7 @@
 </template>
 
 <script>
-import { login } from "../../api.js";
+import { loginUser } from "../../api.js";
 
 export default {
   name: "LoginPage",
@@ -135,7 +139,6 @@ export default {
     return {
       login: "",
       password: "",
-      user: {},
     };
   },
 
@@ -148,8 +151,22 @@ export default {
 
       console.log(form);
 
-      login(form);
+      loginUser(form, "11111");
+    },
+
+    getToken() {
+      var rand = function () {
+        return Math.random().toString(36).substr(2);
+      };
+
+      return rand() + rand();
     },
   },
+
+  computed: {
+    disableLoginButton() {
+      return this.login !== "" || this.password !== "";
+    }
+  }
 };
 </script>
