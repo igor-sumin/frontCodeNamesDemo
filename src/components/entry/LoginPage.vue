@@ -13,7 +13,7 @@
           </p>
         </div>
         <div class="m-7">
-          <form action="">
+          <form @submit.prevent="userLogin">
             <div class="mb-6">
               <label
                 for="text"
@@ -21,7 +21,7 @@
                 >Логин</label
               >
               <input
-                v-model="login"
+                v-model="form.login"
                 type="text"
                 placeholder="введите логин"
                 class="
@@ -64,7 +64,7 @@
                 >
               </div>
               <input
-                v-model="password"
+                v-model="form.password"
                 type="password"
                 placeholder="введите пароль"
                 class="
@@ -89,17 +89,16 @@
             </div>
             <div class="mb-6">
               <button
-                @click.prevent="userLogin"
-                :style="{
-                  disabled: `${disableLoginButton}`
-                }"
+                type="submit"
+                :disabled="!isFormValid"
+
                 class="
                   w-full
                   px-3
                   py-4
                   text-white
-                  bg-indigo-500
                   rounded-md
+                  bg-indigo-500
                   focus:bg-indigo-600
                   hover:bg-indigo-700
                   focus:outline-none
@@ -120,7 +119,7 @@
                   dark:focus:border-indigo-800
                 "
                 >Зарегистрироваться</a
-              >.
+              >
             </p>
           </form>
         </div>
@@ -130,43 +129,35 @@
 </template>
 
 <script>
-import { loginUser } from "../../api.js";
+  import { authenticate } from "../../api";
 
-export default {
-  name: "LoginPage",
+  export default {
+    name: "LoginPage",
 
-  data() {
-    return {
-      login: "",
-      password: "",
-    };
-  },
-
-  methods: {
-    async userLogin() {
-      let form = {
-        login: this.login,
-        password: this.password,
+    data() {
+      return {
+        form: {
+          login: "",
+          password: "",
+        }
       };
-
-      console.log(form);
-
-      loginUser(form, "11111");
     },
 
-    getToken() {
-      var rand = function () {
-        return Math.random().toString(36).substr(2);
-      };
+    methods: {
+      userLogin() {
+        const auth = this.form;
 
-      return rand() + rand();
+        console.log("form-login = " + JSON.stringify(auth));
+        authenticate(auth);
+
+        console.log("token-login = " + window.localStorage.getItem("token"));
+      },
     },
-  },
 
-  computed: {
-    disableLoginButton() {
-      return this.login !== "" || this.password !== "";
+    computed: {
+      isFormValid() {
+        return this.form;
+      }
     }
-  }
-};
+  };
 </script>
