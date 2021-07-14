@@ -9,17 +9,17 @@ import Register from "../components/entry/RegisterPage.vue"
 
 const routes = [{
     path: "/",
-    name: "Room",
+    name: "room",
     component: Room,
   },
   {
     path: "/login",
-    name: "Login",
+    name: "login",
     component: Login,
   },
   {
     path: "/registration",
-    name: "Register",
+    name: "registration",
     component: Register,
   },
 ];
@@ -31,21 +31,31 @@ const router = createRouter({
   routes: routes,
 });
 
-// router.beforeEach((to, from, next) => {
-//   if (to.matched.some(record => record.path !== "/login")) {
-//     if (sessionStorage.getItem("token") == null) {
-//       next({
-//         path: "/login",
-//         params: {
-//           nextUrl: to.fullPath
-//         },
-//       });
-//     } else {
-//       next();
-//     }
-//   } else {
-//     next();
-//   }
-// });
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem("token");
+
+  console.log("token = " + token);
+  console.log("toname = " + to.name);
+
+  if ((token) && (to.name === "login" || to.name === "registration")) {
+    next({
+      path: "/",
+      params: {
+        nextUrl: to.fullPath
+      }
+    });
+  }
+
+  if (!token) {
+    next({
+      path: "/login",
+      params: {
+        nextUrl: to.fullPath
+      }
+    });
+  }
+
+  next();
+});
 
 export default router;

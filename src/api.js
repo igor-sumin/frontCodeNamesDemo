@@ -1,17 +1,19 @@
 import axios from "axios";
 
-// axios Interceptors
-axios.interceptors.request.use(function (config) {
-  const token = localStorage.getItem("token");
-  config.headers.token = token ? token : "";
+// // axios Interceptors
+// axios.interceptors.request.use(function (config) {
+//   const token = localStorage.getItem("token");
+//   config.headers.token = token ? token : "";
 
-  return config;
-});
+//   return config;
+// });
 
+// методы, вызывающие подходящие контроллеры
 function authenticate(form) {
   console.log("login");
 
-  axios.post("http://localhost:8080/login", form)
+  axios
+    .post("http://localhost:8080/login", form)
     .then(function (response) {
       localStorage.setItem("token", response.data.token);
     })
@@ -23,7 +25,8 @@ function authenticate(form) {
 function registration(form) {
   console.log("registration");
 
-  axios.post("http://localhost:8080/register", form)
+  axios
+    .post("http://localhost:8080/register", form)
     .then(function (response) {
       localStorage.setItem("token", response.data.token);
     })
