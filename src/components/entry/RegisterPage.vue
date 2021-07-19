@@ -6,6 +6,7 @@
           <h1 class="my-3 text-3xl font-semibold text-gray-700 dark:text-gray-200">CodeNames Demo</h1>
           <p class="text-gray-500 dark:text-gray-400">Зарегистрируйте новый аккаунт</p>
         </div>
+        <error v-if="error" :error="error" />
         <div class="m-7">
           <form @submit.prevent="userRegistration">
             <div class="mb-6">
@@ -33,10 +34,6 @@
             <div class="mb-6">
               <div class="flex justify-between mb-2">
                 <label for="password" class="text-sm text-gray-600 dark:text-gray-400">Пароль</label>
-                <a
-                  href="#!"
-                  class="text-sm text-gray-400 focus:outline-none focus:text-indigo-500 hover:text-indigo-500 dark:hover:text-indigo-300"
-                >Забыли пароль?</a>
               </div>
               <input
                 v-model="form.userPassword"
@@ -59,7 +56,7 @@
             <div class="mb-6">
               <button
                 type="submit"
-                :disabled="!isFormValid"
+                :disabled="!isFormValid || !isEmailValid"
                 class="w-full px-3 py-4 text-white bg-indigo-500 rounded-md focus:bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
               >Создать</button>
             </div>
@@ -79,9 +76,14 @@
 
 <script>
 import { registration } from "../../api";
+import Error from "../Error.vue";
 
 export default {
   name: "RegisterPage",
+
+  components: {
+    Error,
+  },
 
   data() {
     return {
@@ -91,21 +93,22 @@ export default {
         userPassword: "",
         email: "",
       },
+      error: "",
+      reg: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/,
     };
   },
 
   methods: {
-    userRegistration() {
-      const registrate = this.form;
-
-      console.log("form-registrate = " + JSON.stringify(registrate));
-      registration(registrate);
-
-      console.log("token-registrate = " + localStorage.getItem("token"));
+    async userRegistration() {
+      this.error = await registration(this.form);
     },
   },
 
   computed: {
+    isEmailValid() {
+      return this.reg.test(this.form.email);
+    },
+
     isFormValid() {
       return this.form;
     },

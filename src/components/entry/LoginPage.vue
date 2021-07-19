@@ -6,6 +6,7 @@
           <h1 class="my-3 text-3xl font-semibold text-gray-700 dark:text-gray-200">CodeNames Demo</h1>
           <p class="text-gray-500 dark:text-gray-400">Авторизируйтесь для входа в аккаунт</p>
         </div>
+        <error v-if="error" :error="error" />
         <div class="m-7">
           <form @submit.prevent="userLogin">
             <div class="mb-6">
@@ -21,10 +22,10 @@
             <div class="mb-6">
               <div class="flex justify-between mb-2">
                 <label for="password" class="text-sm text-gray-600 dark:text-gray-400">Пароль</label>
-                <a
-                  href="#!"
+                <router-link
+                  to="/forgot"
                   class="text-sm text-gray-400 focus:outline-none focus:text-indigo-500 hover:text-indigo-500 dark:hover:text-indigo-300"
-                >Забыли пароль?</a>
+                >Забыли пароль?</router-link>
               </div>
               <input
                 v-model="form.userPassword"
@@ -57,9 +58,13 @@
 
 <script>
 import { authenticate } from "../../api";
+import Error from "../Error.vue";
 
 export default {
   name: "LoginPage",
+  components: {
+    Error,
+  },
 
   data() {
     return {
@@ -67,17 +72,13 @@ export default {
         userLogin: "",
         userPassword: "",
       },
+      error: "",
     };
   },
 
   methods: {
-    userLogin() {
-      const auth = this.form;
-
-      console.log("form-login = " + JSON.stringify(auth));
-      authenticate(auth);
-
-      console.log("token-login = " + window.localStorage.getItem("token"));
+    async userLogin() {
+      this.error = await authenticate(this.form);
     },
   },
 

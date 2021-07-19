@@ -1,16 +1,19 @@
-import {
-  createRouter,
-  createWebHistory
-} from "vue-router";
+import Vue from "vue"
+import Router from "vue-router"
 
-import Room from "../components/Room.vue";
-import Login from "../components/entry/LoginPage.vue";
+import Dashboard from "../components/Dashboard.vue"
+import Login from "../components/entry/LoginPage.vue"
 import Register from "../components/entry/RegisterPage.vue"
+import Forgot from "../components/entry/Forgot.vue"
+import Room from "../components/params/RoomPage.vue"
+import Role from "../components/params/RolePage.vue"
+
+Vue.use(Router)
 
 const routes = [{
     path: "/",
-    name: "room",
-    component: Room,
+    name: "dashboard",
+    component: Dashboard,
   },
   {
     path: "/login",
@@ -22,40 +25,27 @@ const routes = [{
     name: "registration",
     component: Register,
   },
+  {
+    path: "/forgot",
+    name: "forgot",
+    component: Forgot,
+  },
+  {
+    path: "/room",
+    name: "room",
+    component: Room,
+  },
+  {
+    path: "/role",
+    name: "role",
+    component: Role,
+  },
 ];
 
-const router = createRouter({
+const router = new Router({
+  routes: routes,
   mode: "history",
   base: process.env.BASE_URL,
-  history: createWebHistory(),
-  routes: routes,
-});
-
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem("token");
-
-  console.log("token = " + token);
-  console.log("toname = " + to.name);
-
-  if ((token) && (to.name === "login" || to.name === "registration")) {
-    next({
-      path: "/",
-      params: {
-        nextUrl: to.fullPath
-      }
-    });
-  }
-
-  if (!token) {
-    next({
-      path: "/login",
-      params: {
-        nextUrl: to.fullPath
-      }
-    });
-  }
-
-  next();
 });
 
 export default router;
