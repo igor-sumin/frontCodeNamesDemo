@@ -16,9 +16,18 @@
             >Создать комнату</button>
             <button
               @click.prevent="randRoom"
+              :disabled="!isQntRooms"
               type="button"
-              class="w-full px-3 py-3 mb-4 text-white rounded-md bg-indigo-500 focus:bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
-            >Перейти в случайную комнату</button>
+              :class="{
+                'bg-indigo-500 focus:bg-indigo-600 hover:bg-indigo-700 focus:outline-none cursor-pointer': isQntRooms,
+                'bg-indigo-300 cursor-not-allowed': !isQntRooms,
+              }"
+              class="flex flex-col w-full py-3 mb-4 text-white rounded-md"
+            >
+              <p class="m-auto">Перейти в случайную комнату</p>
+              <span class="m-auto">Создано комнат: {{ qntRooms }}</span>
+            </button>
+
             <p class="text-sm text-center text-gray-400">
               Хотите поменять аккаунт?
               <router-link
@@ -34,7 +43,7 @@
 </template>
 
 <script>
-import { createRoom, takeRandRoom } from "../../api";
+import { createRoom, takeRandRoom, takeAmountUsersRoom } from "../../api";
 import Error from "../Error.vue";
 
 export default {
@@ -47,16 +56,28 @@ export default {
     return {
       ref: "",
       error: "",
+      qntRooms: 0,
     };
   },
 
   methods: {
     async newRoom() {
       this.error = await createRoom();
+      console.log("ref = " + sessionStorage.getItem("roomRef"));
     },
 
     async randRoom() {
       this.error = await takeRandRoom();
+    },
+  },
+
+  async mounted() {
+    this.qntRooms = await takeAmountUsersRoom();
+  },
+
+  computed: {
+    isQntRooms() {
+      return this.qntRooms;
     },
   },
 };

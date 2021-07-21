@@ -1,5 +1,6 @@
 import axios from "axios";
 import router from "./router";
+import "./axios";
 
 // --- Entry ---
 
@@ -7,6 +8,7 @@ async function authenticate(form) {
   try {
     const response = await axios.post("login", form);
     localStorage.setItem("token", response.data.token);
+    axios.defaults.headers.common["token"] = localStorage.getItem("token");
 
     router.push("/room");
   } catch (e) {
@@ -18,17 +20,12 @@ async function registration(form) {
   try {
     const response = await axios.post("register", form);
     localStorage.setItem("token", response.data.token);
+    axios.defaults.headers.common["token"] = localStorage.getItem("token");
 
     router.push("/login");
   } catch (e) {
     return e.response.data;
   }
-}
-
-// TODO: что с table:entry ?
-function logout() {
-  localStorage.removeItem("token");
-  router.push("/login");
 }
 
 // TODO: доделать
@@ -41,8 +38,10 @@ async function recover(email) {
 
 async function createRoom() {
   try {
-    const response = await axios.post("room");
-    localStorage.setItem("ref", response.data.ref);
+    const response = await axios.post("room", {});
+    sessionStorage.setItem("roomRef", response.data.roomRef);
+    axios.defaults.headers.common["roomRef"] = sessionStorage.getItem("roomRef");
+
     router.push("/role");
   } catch (e) {
     return e.response.data;
@@ -51,36 +50,71 @@ async function createRoom() {
 
 async function takeRandRoom() {
   try {
-    const response = await axios.get("room");
-    localStorage.setItem("ref", response.data.ref);
+    const response = await axios.get("room/random");
+    sessionStorage.setItem("roomRef", response.data.roomRef);
+    axios.defaults.headers.common["roomRef"] = sessionStorage.getItem("roomRef");
+
     router.push("/role");
   } catch (e) {
     return e.response.data;
   }
 }
 
+async function takeAmountUsersRoom() {
+  const response = await axios.get("room/qnt");
+  return response.data;
+}
+
 // --- Roles ---
 
-async function defRoleTeam(fields) {
+async function defRoleTeam(json) {
   try {
-    const response = await axios.post("user", fields);
-    console.log("my = " + response.data);
+    json.roomRef = sessionStorage.getItem("roomRef");
+    const response = await axios.post("user", json);
+
+    router.push({
+      name: "dashboard",
+      query: {
+        r: json.roomRef
+      }
+    });
+
   } catch (e) {
     return e.response.data;
   }
 }
 
 // --- Dashboard ---
-async function getUserInfo() {
-  try {
-    console.log("token = " + localStorage.getItem("token"));
-    const response = await axios.get("user");
 
+function logout() {
+  localStorage.removeItem("token");
+  router.push("/login");
+}
+
+async function getUserInfo() {
+  const ref = sessionStorage.getItem("roomRef");
+  const response = await axios.get("user", {
+    params: {
+      ref
+    }
+  });
+
+  return JSON.stringify(response.data);
+}
+
+async function takeRoom() {
+  try {
+    const r = sessionStorage.getItem("roomRef");
+    const response = await axios.get("room", {
+      params: {
+        r
+      }
+    });
+
+    return response.data;
   } catch (e) {
     return e.response.data;
   }
-
-  return response.data;
 }
 
 export {
@@ -90,6 +124,8 @@ export {
   recover,
   createRoom,
   takeRandRoom,
+  takeAmountUsersRoom,
+  takeRoom,
   defRoleTeam,
   getUserInfo
 };

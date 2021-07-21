@@ -7,6 +7,7 @@ import Register from "../components/entry/RegisterPage.vue"
 import Forgot from "../components/entry/Forgot.vue"
 import Room from "../components/params/RoomPage.vue"
 import Role from "../components/params/RolePage.vue"
+import NotFound from "../components/NotFound.vue"
 
 Vue.use(Router)
 
@@ -40,6 +41,11 @@ const routes = [{
     name: "role",
     component: Role,
   },
+  {
+    path: "*",
+    name: "notfound",
+    component: NotFound,
+  }
 ];
 
 const router = new Router({
@@ -47,5 +53,9 @@ const router = new Router({
   mode: "history",
   base: process.env.BASE_URL,
 });
+
+router.beforeEach((to, from, next) => {
+  next();
+})
 
 export default router;

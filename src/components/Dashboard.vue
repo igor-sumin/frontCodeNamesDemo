@@ -316,14 +316,18 @@
 </template>
 
 <script>
-import { logout, getUserInfo } from "../api";
+import { logout, getUserInfo, takeRoom } from "../api";
+import Error from "./Error.vue";
 
 export default {
   name: "Dashboard",
+  components: {
+    Error,
+  },
 
   data() {
     return {
-      user: null,
+      error: "",
     };
   },
 
@@ -334,8 +338,14 @@ export default {
 
     async userInfo() {
       let info = await getUserInfo();
-      console.log("пользователь = " + info);
+      console.log("user = " + info);
     },
+  },
+
+  async mounted() {
+    // получить комнату -> записать данные в data
+    let response = await takeRoom();
+    console.log("response_ = " + JSON.stringify(response));
   },
 };
 </script>

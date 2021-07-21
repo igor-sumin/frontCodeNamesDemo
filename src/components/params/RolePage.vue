@@ -10,7 +10,7 @@
         <div class="m-8">
           <form class="grid grid-cols-2 gap-2 w-full max-w-screen-sm">
             <div>
-              <input type="radio" id="captain" value="Captain" class="hidden" v-model="checkedRole" />
+              <input type="radio" id="captain" value="Captain" class="hidden" v-model="form.role" />
               <label
                 class="flex flex-col p-4 border-2 border-gray-200 cursor-pointer"
                 for="captain"
@@ -24,7 +24,7 @@
                 id="player"
                 value="Player"
                 class="hidden"
-                v-model="checkedRole"
+                v-model="form.role"
                 checked
               />
               <label class="flex flex-col p-4 border-2 border-gray-200 cursor-pointer" for="player">
@@ -32,14 +32,18 @@
               </label>
             </div>
             <div>
-              <input type="radio" id="red" value="Red" class="hidden" v-model="checkedTeam" />
+              <input type="radio" id="red" value="Red" class="hidden" v-model="form.team" />
               <label class="flex flex-col p-4 border-2 border-gray-200 cursor-pointer" for="red">
                 <span class="text-xl font-bold uppercase text-red-500">Красные</span>
-                <span class="text-xs font-semibold mt-3 text-gray-500">внутри 1 капитан, 3 игрока</span>
+                <span class="text-xs font-semibold mt-3 text-gray-500">
+                  внутри
+                  <span v-if="hasRedCaptain">фыа</span>
+                  <span>фыва</span>
+                </span>
               </label>
             </div>
             <div>
-              <input type="radio" id="blue" value="Blue" class="hidden" v-model="checkedTeam" />
+              <input type="radio" id="blue" value="Blue" class="hidden" v-model="form.team" />
               <label class="flex flex-col p-4 border-2 border-gray-200 cursor-pointer" for="blue">
                 <span class="text-xl font-bold uppercase text-blue-500">Синие</span>
                 <span class="text-xs font-semibold mt-3 text-gray-500">внутри 2 игрока</span>
@@ -51,7 +55,7 @@
               class="w-full px-3 py-3 mt-6 col-span-2 text-white rounded-md bg-indigo-500 focus:bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
             >Далее</button>
             <p class="mt-3 col-span-2 text-sm text-center text-gray-400">
-              Хотите поменять комнату? {{ checkedRole }} + {{ checkedTeam }}
+              Хотите поменять комнату?
               <router-link
                 to="/room"
                 class="text-indigo-400 focus:outline-none focus:underline focus:text-indigo-500 dark:focus:border-indigo-800"
@@ -65,7 +69,7 @@
 </template>
 
 <script>
-import { defRoleTeam } from "../../api";
+import { defRoleTeam, takeRoom } from "../../api";
 import Error from "../Error.vue";
 
 export default {
@@ -76,20 +80,70 @@ export default {
 
   data() {
     return {
-      checkedRole: "",
-      checkedTeam: "",
+      form: {
+        role: "",
+        team: "",
+      },
+
+      teams: {
+        red: {
+          captain: false,
+          players: 0,
+        },
+        blue: {
+          captain: false,
+          players: 0,
+        },
+      },
+
       error: "",
     };
   },
 
   methods: {
     async userRoleTeam() {
-      const json = {
-        isCaptain: this.checkedRole.startsWith("C"),
-        teamName: this.checkedTeam,
+      const checked = this.form;
+      let json = {
+        isCaptain: checked.role.startsWith("C"),
+        teamName: checked.team,
       };
 
       this.error = await defRoleTeam(json);
+    },
+  },
+
+  async mounted() {
+    let json = await takeRoom();
+
+    let [blue, red] =
+      json.teams[0].teamName === "Blue" ? json.teams : json.teams.reverse();
+
+    Object.values(blue.users).forEach((value) => {
+      this.teams.blue.captain = this.teams.blue.captain || value.captain;
+      this.teams.blue.players += 1;
+    });
+
+    Object.values(red.users).forEach((value) => {
+      this.teams.red.captain = this.teams.red.captain || value.captain;
+      this.teams.red.players += 1;
+    });
+  },
+
+  computed: {
+    hasRedCaptain() {
+      return this.teams.red.captain;
+    },
+
+    hasBlueCaptain() {
+      return this.teams.blue.captain;
+    },
+
+    hasRedPlayers() {
+      return this.teams.red.players;
+    },
+
+    hasBluePlayers() {
+      return this.teams.blue.players;
     },
   },
 };
