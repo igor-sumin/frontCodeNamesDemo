@@ -99,7 +99,7 @@ async function getUserInfo() {
     }
   });
 
-  return JSON.stringify(response.data);
+  return response.data;
 }
 
 async function takeRoom() {

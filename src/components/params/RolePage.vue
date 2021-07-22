@@ -7,28 +7,32 @@
           <p class="text-gray-500 dark:text-gray-400">Выбери себе роль и команду</p>
         </div>
         <error v-if="error" :error="error" />
-        <div class="m-8">
-          <form class="grid grid-cols-2 gap-2 w-full max-w-screen-sm">
+        <div class="pt-8">
+          <form @submit.prevent="userRoleTeam" class="grid grid-cols-2 gap-2 w-full">
             <div>
-              <input type="radio" id="captain" value="Captain" class="hidden" v-model="form.role" />
+              <input
+                :disabled="hasCaptain"
+                type="radio"
+                id="captain"
+                value="Captain"
+                class="hidden"
+                v-model="form.role"
+              />
               <label
                 class="flex flex-col p-4 border-2 border-gray-200 cursor-pointer"
                 for="captain"
               >
-                <span class="text-center font-bold">Капитан</span>
+                <span
+                  :class="[
+                    hasCaptain ? 'font-normal text-gray-500 cursor-not-allowed' : 'font-bold'
+                  ]"
+                >Капитан</span>
               </label>
             </div>
             <div>
-              <input
-                type="radio"
-                id="player"
-                value="Player"
-                class="hidden"
-                v-model="form.role"
-                checked
-              />
+              <input type="radio" id="player" value="Player" class="hidden" v-model="form.role" />
               <label class="flex flex-col p-4 border-2 border-gray-200 cursor-pointer" for="player">
-                <span class="text-center font-bold">Игрок</span>
+                <span class="font-bold">Игрок</span>
               </label>
             </div>
             <div>
@@ -37,8 +41,7 @@
                 <span class="text-xl font-bold uppercase text-red-500">Красные</span>
                 <span class="text-xs font-semibold mt-3 text-gray-500">
                   внутри
-                  <span v-if="hasRedCaptain">фыа</span>
-                  <span>фыва</span>
+                  <my-span :team="teams.red" />
                 </span>
               </label>
             </div>
@@ -46,12 +49,15 @@
               <input type="radio" id="blue" value="Blue" class="hidden" v-model="form.team" />
               <label class="flex flex-col p-4 border-2 border-gray-200 cursor-pointer" for="blue">
                 <span class="text-xl font-bold uppercase text-blue-500">Синие</span>
-                <span class="text-xs font-semibold mt-3 text-gray-500">внутри 2 игрока</span>
+                <span class="text-xs font-semibold mt-3 text-gray-500">
+                  внутри
+                  <my-span :team="teams.blue" />
+                </span>
               </label>
             </div>
             <button
-              @click.prevent="userRoleTeam"
-              type="button"
+              type="submit"
+              :disabled="!isFormValid"
               class="w-full px-3 py-3 mt-6 col-span-2 text-white rounded-md bg-indigo-500 focus:bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
             >Далее</button>
             <p class="mt-3 col-span-2 text-sm text-center text-gray-400">
@@ -71,11 +77,14 @@
 <script>
 import { defRoleTeam, takeRoom } from "../../api";
 import Error from "../Error.vue";
+import MySpan from "./span/MySpan.vue";
 
 export default {
   name: "RolePage",
+
   components: {
     Error,
+    MySpan,
   },
 
   data() {
@@ -130,20 +139,15 @@ export default {
   },
 
   computed: {
-    hasRedCaptain() {
-      return this.teams.red.captain;
+    hasCaptain() {
+      return (this.teams.red.captain && this.teams.blue.captain) ||
+        this.form.team === "Blue"
+        ? this.teams.blue.captain
+        : this.teams.red.captain;
     },
 
-    hasBlueCaptain() {
-      return this.teams.blue.captain;
-    },
-
-    hasRedPlayers() {
-      return this.teams.red.players;
-    },
-
-    hasBluePlayers() {
-      return this.teams.blue.players;
+    isFormValid() {
+      return this.form.role && this.form.team;
     },
   },
 };
