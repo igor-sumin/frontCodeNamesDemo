@@ -4,7 +4,7 @@ import "./axios";
 
 // --- Entry ---
 
-async function authenticate(form) {
+export const authenticate = async (form) => {
   try {
     const response = await axios.post("login", form);
     localStorage.setItem("token", response.data.token);
@@ -14,9 +14,9 @@ async function authenticate(form) {
   } catch (e) {
     return e.response.data;
   }
-}
+};
 
-async function registration(form) {
+export const registration = async (form) => {
   try {
     const response = await axios.post("register", form);
     localStorage.setItem("token", response.data.token);
@@ -26,17 +26,11 @@ async function registration(form) {
   } catch (e) {
     return e.response.data;
   }
-}
-
-// TODO: доделать
-async function recover(email) {
-  const response = await axios.post("forgot", email);
-  console.log(response.data);
-}
+};
 
 // --- Params ---
 
-async function createRoom() {
+export const createRoom = async () => {
   try {
     const response = await axios.post("room", {});
     sessionStorage.setItem("roomRef", response.data.roomRef);
@@ -46,9 +40,9 @@ async function createRoom() {
   } catch (e) {
     return e.response.data;
   }
-}
+};
 
-async function takeRandRoom() {
+export const takeRandRoom = async () => {
   try {
     const response = await axios.get("room/random");
     sessionStorage.setItem("roomRef", response.data.roomRef);
@@ -58,74 +52,94 @@ async function takeRandRoom() {
   } catch (e) {
     return e.response.data;
   }
-}
+};
 
-async function takeAmountUsersRoom() {
+export const takeAmountUsersRoom = async () => {
   const response = await axios.get("room/qnt");
   return response.data;
-}
+};
 
 // --- Roles ---
 
-async function defRoleTeam(json) {
+export const defRoleTeam = async (json) => {
   try {
     json.roomRef = sessionStorage.getItem("roomRef");
     const response = await axios.post("user", json);
 
     router.push({
-      name: "dashboard",
-      query: {
-        r: json.roomRef
-      }
+      path: `/room/${json.roomRef}`
     });
 
   } catch (e) {
     return e.response.data;
   }
-}
+};
 
 // --- Dashboard ---
 
-function logout() {
+export const logout = () => {
   localStorage.removeItem("token");
   router.push("/login");
-}
+};
 
-async function getUserInfo() {
+export const getUserInfo = async () => {
   const ref = sessionStorage.getItem("roomRef");
-  const response = await axios.get("user", {
-    params: {
-      ref
-    }
-  });
+  const response = await axios.get(`/user/${ref}`);
 
   return response.data;
 }
 
-async function takeRoom() {
+export const takeRoom = async () => {
   try {
-    const r = sessionStorage.getItem("roomRef");
-    const response = await axios.get("room", {
-      params: {
-        r
-      }
-    });
+    const ref = sessionStorage.getItem("roomRef");
+    const response = await axios.get(`/room/${ref}`);
 
     return response.data;
+
   } catch (e) {
     return e.response.data;
   }
 }
 
-export {
-  authenticate,
-  registration,
-  logout,
-  recover,
-  createRoom,
-  takeRandRoom,
-  takeAmountUsersRoom,
-  takeRoom,
-  defRoleTeam,
-  getUserInfo
+var stompClient = null;
+const connect = () => {
+  const Stomp = require("stompjs");
+  var SockJS = require("sockjs-client");
+  let socket = new SockJS("http://localhost:8085/ws");
+
+  const roomRef = sessionStorage.getItem("roomRef");
+  stompClient = Stomp.over(socket);
+
+  var headers = {
+    roomRef: sessionStorage.getItem("roomRef")
+  };
+
+  // stompClient.connect({}, onConnected, onError);
+  stompClient.connect({}, frame => {
+    console.log('Connected: ' + frame)
+    stompClient.subscribe("/user/messages", () => {}, headers);
+  })
 };
+
+export const sendMessages = (content) => {
+  const message = {
+    roomRef: sessionStorage.getItem("roomRef"),
+    userToken: localStorage.getItem("token"),
+    userText: content,
+    createdOn: new Date(),
+  };
+
+
+  stompClient.send("/app/chat", {
+    token: localStorage.getItem("token")
+  }, JSON.stringify(message));
+};
+
+export const getChatMessages = async () => {
+  const roomRef = sessionStorage.getItem("roomRef");
+  const response = await axios.get(`/messages/${roomRef}`);
+
+  return response.data;
+};
+
+connect();

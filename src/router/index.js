@@ -12,7 +12,7 @@ import NotFound from "../components/NotFound.vue"
 Vue.use(Router)
 
 const routes = [{
-    path: "/",
+    path: "/room/*",
     name: "dashboard",
     component: Dashboard,
   },

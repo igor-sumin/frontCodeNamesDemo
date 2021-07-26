@@ -40,8 +40,6 @@
 </template>
 
 <script>
-import { recover } from "../../api";
-
 export default {
   name: "Forgot",
 
@@ -52,9 +50,7 @@ export default {
   },
 
   methods: {
-    userRecover() {
-      recover(this.email);
-    },
+    userRecover() {},
   },
 };
 </script>
