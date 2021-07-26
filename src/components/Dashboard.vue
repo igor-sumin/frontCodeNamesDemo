@@ -24,25 +24,34 @@
           class="flex flex-col border items-center mt-4 w-full py-6 px-4 rounded-lg"
         >
           <div
-            :class="[
-              this.user.captain ? 'border-yellow-300 border-2 text-yellow-200' : 'font-bold border-2 border-indigo-300 text-indigo-400'
-            ]"
+            :class="{
+              'border-yellow-300 border-2 text-yellow-200': !userBackground && this.user.info.captain,
+              'border-yellow-500 border-2 text-yellow-500': userBackground && this.user.info.captain,
+              'font-bold border-2 border-indigo-300 text-indigo-400': !userBackground && !this.user.info.captain,
+              'font-bold border-2 border-red-300 text-red-400': userBackground && !this.user.info.captain,
+            }"
             class="h-10 w-20 text-center pt-2 rounded-full overflow-hidden justify-center"
-          >{{ this.user.userName }}</div>
-          <div class="text-sm font-semibold mt-2">{{ this.user.userName }}</div>
+          >{{ this.user.info.userName }}</div>
+          <div class="text-sm font-semibold mt-2">{{ this.user.info.userName }}</div>
           <div class="text-xs text-gray-500">
-            <p v-if="this.user.captain">captain</p>
+            <p v-if="this.user.info.captain">captain</p>
             <p v-else>player</p>
           </div>
           <button
             @click.prevent="userInfo"
             type="button"
-            class="pl-4 mt-3 flex flex-col h-6 w-20 bg-indigo-500 hover:bg-indigo-700 rounded-full text-white"
+            :class="[
+              userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
+            ]"
+            class="pl-4 mt-3 flex flex-col h-6 w-20 rounded-full text-white"
           >о себе</button>
           <div class="flex flex-row items-center">
             <a
               @click="userLogout"
-              class="text-center mt-3 flex flex-col h-6 w-20 bg-indigo-500 hover:bg-indigo-700 rounded-full text-white"
+              :class="[
+                userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
+              ]"
+              class="text-center mt-3 flex flex-col h-6 w-20 rounded-full text-white"
             >выйти</a>
           </div>
         </div>
@@ -51,9 +60,9 @@
             <span class="font-bold">Команда красных</span>
             <span
               class="flex items-center justify-center bg-gray-300 h-5 w-5 rounded-full"
-            >{{ teams.red.players.length }}</span>
+            >{{ teams.red.players.length + (this.user.team === "Red" ? 1 : 0)}}</span>
           </div>
-          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-50 overflow-y-auto">
+          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
             <div v-for="(player, idx) in teams.red.players" :key="idx">
               <button class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
                 <div
@@ -70,14 +79,14 @@
             <span class="font-bold">Команда синих</span>
             <span
               class="flex items-center justify-center bg-gray-300 h-5 w-5 rounded-full"
-            >{{ teams.blue.players.length }}</span>
+            >{{ teams.blue.players.length + (this.user.team === "Blue" ? 1 : 0)}}</span>
           </div>
-          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
+          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-50 overflow-y-auto">
             <div v-for="(player, idx) in teams.blue.players" :key="'A' + idx">
               <button class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
                 <div
                   :class="[
-                    teams.blue.captain === player ? 'border-2 border-indigo-500 shadow-inner' : ''
+                    teams.blue.captain === player ? 'border-2 border-indigo-400 shadow-inner' : ''
                   ]"
                   class="flex items-center justify-center h-8 w-8 bg-indigo-200 rounded-full"
                 >{{ player[0] }}</div>
@@ -92,6 +101,7 @@
           <div class="flex flex-col h-full overflow-x-auto mb-4">
             <div class="flex flex-col h-full">
               <div class="grid grid-cols-12 gap-y-2">
+                <!-- чужие сообщения -->
                 <div class="col-start-1 col-end-8 p-3 rounded-lg">
                   <div class="flex flex-row items-center">
                     <div
@@ -102,191 +112,14 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                  <div class="flex flex-row items-center">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                      <div>
-                        Lorem ipsum dolor sit amet, consectetur adipisicing
-                        elit. Vel ipsa commodi illum saepe numquam maxime
-                        asperiores voluptate sit, minima perspiciatis.
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <!-- свои сообщения -->
                 <div class="col-start-6 col-end-13 p-3 rounded-lg">
                   <div class="flex items-center justify-start flex-row-reverse">
                     <div
                       class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
                     >A</div>
                     <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                      <div>I'm ok what about you?</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-start-6 col-end-13 p-3 rounded-lg">
-                  <div class="flex items-center justify-start flex-row-reverse">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                      <div>Lorem ipsum dolor sit, amet consectetur adipisicing. ?</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                  <div class="flex flex-row items-center">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                      <div>Lorem ipsum dolor sit amet !</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-start-6 col-end-13 p-3 rounded-lg">
-                  <div class="flex items-center justify-start flex-row-reverse">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                      <div>Lorem ipsum dolor sit, amet consectetur adipisicing. ?</div>
-                      <div class="absolute text-xs bottom-0 right-0 -mb-5 mr-2 text-gray-500">Seen</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                  <div class="flex flex-row items-center">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                      <div>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Perspiciatis, in.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                  <div class="flex flex-row items-center">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                      <div>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Perspiciatis, in.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                  <div class="flex flex-row items-center">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                      <div>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Perspiciatis, in.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                  <div class="flex flex-row items-center">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                      <div>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Perspiciatis, in.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                  <div class="flex flex-row items-center">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                      <div>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Perspiciatis, in.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                  <div class="flex flex-row items-center">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                      <div class="flex flex-row items-center">
-                        <button
-                          class="flex items-center justify-center bg-indigo-600 hover:bg-indigo-800 rounded-full h-8 w-10"
-                        >
-                          <svg
-                            class="w-6 h-6 text-white"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="1.5"
-                              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                            />
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="1.5"
-                              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                        </button>
-                        <div class="flex flex-row items-center space-x-px ml-4">
-                          <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-4 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-12 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-6 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-5 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-4 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-3 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-10 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-1 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-1 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-8 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-2 w-1 bg-gray-500 rounded-lg"></div>
-                          <div class="h-4 w-1 bg-gray-500 rounded-lg"></div>
-                        </div>
-                      </div>
+                      <div>I'm ok what about you? {{ message }}</div>
                     </div>
                   </div>
                 </div>
@@ -294,53 +127,23 @@
             </div>
           </div>
           <div class="flex flex-row items-center h-16 rounded-xl bg-white w-full px-4">
-            <div>
-              <button class="flex items-center justify-center text-gray-400 hover:text-gray-600">
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                  />
-                </svg>
-              </button>
-            </div>
             <div class="flex-grow ml-4">
               <div class="relative w-full">
                 <input
+                  v-model="message"
                   type="text"
                   class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"
                 />
-                <button
-                  class="absolute flex items-center justify-center h-full w-12 right-0 top-0 text-gray-400 hover:text-gray-600"
-                >
-                  <svg
-                    class="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </button>
               </div>
             </div>
             <div class="ml-4">
               <button
-                class="flex items-center justify-center bg-indigo-500 hover:bg-indigo-600 rounded-xl text-white px-4 py-1 flex-shrink-0"
+                @click.prevent="sendMessage"
+                :disabled="!isMessage"
+                :class="[
+                  isMessage ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-indigo-300'
+                ]"
+                class="flex items-center justify-center rounded-xl text-white px-4 py-1 flex-shrink-0"
               >
                 <span>Send</span>
                 <span class="ml-2">
@@ -369,7 +172,13 @@
 </template>
 
 <script>
-import { logout, getUserInfo, takeRoom } from "../api";
+import {
+  logout,
+  getUserInfo,
+  takeRoom,
+  sendMessages,
+  getChatMessages,
+} from "../api";
 
 export default {
   name: "Dashboard",
@@ -379,6 +188,14 @@ export default {
 
   data() {
     return {
+      message: "",
+      chatMessages: {
+        user: {
+          info: {},
+          team: "",
+        },
+      },
+
       teams: {
         red: {
           captain: "",
@@ -390,7 +207,10 @@ export default {
         },
       },
 
-      user: {},
+      user: {
+        info: {},
+        team: "",
+      },
     };
   },
 
@@ -402,12 +222,15 @@ export default {
     async userInfo() {
       console.log("user = " + JSON.stringify(this.user));
     },
+
+    sendMessage() {
+      sendMessages(this.message);
+      this.message = "";
+    },
   },
 
   async mounted() {
-    // TODO: переделать
-    this.user = await getUserInfo();
-
+    this.user.info = await getUserInfo();
     let json = await takeRoom();
 
     let [blue, red] =
@@ -418,7 +241,7 @@ export default {
         this.teams.blue.captain = value.userName;
       }
 
-      if (value.userName == this.user.userName) {
+      if (value.userName == this.user.info.userName) {
         this.user.team = "Blue";
       } else {
         this.teams.blue.players.push(value.userName);
@@ -430,7 +253,7 @@ export default {
         this.teams.red.captain = value.userName;
       }
 
-      if (value.userName == this.user.userName) {
+      if (value.userName == this.user.info.userName) {
         this.user.team = "Red";
       } else {
         this.teams.red.players.push(value.userName);
@@ -439,9 +262,24 @@ export default {
 
     console.log("blue = " + JSON.stringify(this.teams.blue));
     console.log("red = " + JSON.stringify(this.teams.red));
+
+    // chatMessages: {
+    //   user: {
+    //     info: {},
+    //     team: "",
+    //   },
+    // },
+    let messages = await getChatMessages();
+    // console.log("messages = " + JSON.stringify(messages));
   },
 
+  created() {},
+
   computed: {
+    isMessage() {
+      return this.message;
+    },
+
     userBackground() {
       return this.user.team == "Red" ? true : false;
     },

@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { defRoleTeam, takeRoom } from "../../api";
+import { defRoleTeam, getUserInfo, takeRoom } from "../../api";
 import Error from "../Error.vue";
 import MySpan from "./span/MySpan.vue";
 
@@ -128,13 +128,19 @@ export default {
       json.teams[0].teamName === "Blue" ? json.teams : json.teams.reverse();
 
     Object.values(blue.users).forEach((value) => {
-      this.teams.blue.captain = this.teams.blue.captain || value.captain;
-      this.teams.blue.players += 1;
+      if (value.captain) {
+        this.teams.blue.captain = value.captain;
+      } else {
+        this.teams.blue.players += 1;
+      }
     });
 
     Object.values(red.users).forEach((value) => {
-      this.teams.red.captain = this.teams.red.captain || value.captain;
-      this.teams.red.players += 1;
+      if (value.captain) {
+        this.teams.red.captain = value.captain;
+      } else {
+        this.teams.red.players += 1;
+      }
     });
   },
 

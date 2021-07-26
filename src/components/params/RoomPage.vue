@@ -68,6 +68,7 @@ export default {
 
     async randRoom() {
       this.error = await takeRandRoom();
+      console.log("ref = " + sessionStorage.getItem("roomRef"));
     },
   },
 
