@@ -10,23 +10,12 @@
         <div class="pt-8">
           <form @submit.prevent="userRoleTeam" class="grid grid-cols-2 gap-2 w-full">
             <div>
-              <input
-                :disabled="hasCaptain"
-                type="radio"
-                id="captain"
-                value="Captain"
-                class="hidden"
-                v-model="form.role"
-              />
+              <input v-model="form.role" type="radio" id="captain" value="Captain" class="hidden" />
               <label
                 class="flex flex-col p-4 border-2 border-gray-200 cursor-pointer"
                 for="captain"
               >
-                <span
-                  :class="[
-                    hasCaptain ? 'font-normal text-gray-500 cursor-not-allowed' : 'font-bold'
-                  ]"
-                >Капитан</span>
+                <span class="font-bold">Капитан</span>
               </label>
             </div>
             <div>
@@ -124,24 +113,43 @@ export default {
   async mounted() {
     let json = await takeRoom();
 
-    let [blue, red] =
-      json.teams[0].teamName === "Blue" ? json.teams : json.teams.reverse();
+    if (JSON.stringify(json.teams) == "[]") {
+      return;
+    }
 
-    Object.values(blue.users).forEach((value) => {
-      if (value.captain) {
-        this.teams.blue.captain = value.captain;
-      } else {
-        this.teams.blue.players += 1;
-      }
-    });
+    let [blue, red] = [null, null];
+    if (json.teams[1] === undefined) {
+      let team = json.teams[0];
 
-    Object.values(red.users).forEach((value) => {
-      if (value.captain) {
-        this.teams.red.captain = value.captain;
+      if (team.teamName === "Blue") {
+        blue = team;
       } else {
-        this.teams.red.players += 1;
+        red = team;
       }
-    });
+    } else {
+      [blue, red] =
+        json.teams[0].teamName === "Blue" ? json.teams : json.teams.reverse();
+    }
+
+    if (blue !== null && JSON.stringify(blue.users) != "[]") {
+      Object.values(blue.users).forEach((value) => {
+        if (value.captain) {
+          this.teams.blue.captain = value.captain;
+        } else {
+          this.teams.blue.players += 1;
+        }
+      });
+    }
+
+    if (red !== null && JSON.stringify(red.users) != "[]") {
+      Object.values(red.users).forEach((value) => {
+        if (value.captain) {
+          this.teams.red.captain = value.captain;
+        } else {
+          this.teams.red.players += 1;
+        }
+      });
+    }
   },
 
   computed: {

@@ -22,7 +22,7 @@ export const registration = async (form) => {
     localStorage.setItem("token", response.data.token);
     axios.defaults.headers.common["token"] = localStorage.getItem("token");
 
-    router.push("/login");
+    router.push("/room");
   } catch (e) {
     return e.response.data;
   }
@@ -55,7 +55,7 @@ export const takeRandRoom = async () => {
 };
 
 export const takeAmountUsersRoom = async () => {
-  const response = await axios.get("room/qnt");
+  const response = await axios.get("room/user/amount");
   return response.data;
 };
 
@@ -77,7 +77,7 @@ export const defRoleTeam = async (json) => {
 
 // --- Dashboard ---
 
-export const logout = () => {
+export const logout = async () => {
   localStorage.removeItem("token");
   router.push("/login");
 };
@@ -128,7 +128,6 @@ export const sendMessages = (content) => {
     userText: content,
     createdOn: new Date(),
   };
-
 
   stompClient.send("/app/chat", {
     token: localStorage.getItem("token")

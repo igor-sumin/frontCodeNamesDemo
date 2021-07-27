@@ -233,32 +233,51 @@ export default {
     this.user.info = await getUserInfo();
     let json = await takeRoom();
 
-    let [blue, red] =
-      json.teams[0].teamName === "Blue" ? json.teams : json.teams.reverse();
+    if (JSON.stringify(json.teams) == "[]") {
+      return;
+    }
 
-    Object.values(blue.users).forEach((value) => {
-      if (value.captain) {
-        this.teams.blue.captain = value.userName;
-      }
+    let [blue, red] = [null, null];
+    if (json.teams[1] === undefined) {
+      let team = json.teams[0];
 
-      if (value.userName == this.user.info.userName) {
-        this.user.team = "Blue";
+      if (team.teamName === "Blue") {
+        blue = team;
       } else {
-        this.teams.blue.players.push(value.userName);
+        red = team;
       }
-    });
+    } else {
+      [blue, red] =
+        json.teams[0].teamName === "Blue" ? json.teams : json.teams.reverse();
+    }
 
-    Object.values(red.users).forEach((value) => {
-      if (value.captain) {
-        this.teams.red.captain = value.userName;
-      }
+    if (blue !== null && JSON.stringify(blue.users) != "[]") {
+      Object.values(blue.users).forEach((value) => {
+        if (value.captain) {
+          this.teams.blue.captain = value.userName;
+        }
 
-      if (value.userName == this.user.info.userName) {
-        this.user.team = "Red";
-      } else {
-        this.teams.red.players.push(value.userName);
-      }
-    });
+        if (value.userName == this.user.info.userName) {
+          this.user.team = "Blue";
+        } else {
+          this.teams.blue.players.push(value.userName);
+        }
+      });
+    }
+
+    if (red !== null && JSON.stringify(red.users) != "[]") {
+      Object.values(red.users).forEach((value) => {
+        if (value.captain) {
+          this.teams.red.captain = value.userName;
+        }
+
+        if (value.userName == this.user.info.userName) {
+          this.user.team = "Red";
+        } else {
+          this.teams.red.players.push(value.userName);
+        }
+      });
+    }
 
     console.log("blue = " + JSON.stringify(this.teams.blue));
     console.log("red = " + JSON.stringify(this.teams.red));
