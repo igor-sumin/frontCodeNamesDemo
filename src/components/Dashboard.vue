@@ -178,6 +178,7 @@ import {
   takeRoom,
   sendMessages,
   getChatMessages,
+  connect,
 } from "../api";
 
 export default {
@@ -189,7 +190,10 @@ export default {
   data() {
     return {
       message: "",
-      chatMessages: {
+
+      messages: [],
+
+      messageHistory: {
         user: {
           info: {},
           team: "",
@@ -230,6 +234,11 @@ export default {
   },
 
   async mounted() {
+    connect((msg) => {
+      console.log("mes1 = " + msg.body);
+      this.messages.push(msg.body);
+    });
+
     this.user.info = await getUserInfo();
     let json = await takeRoom();
 

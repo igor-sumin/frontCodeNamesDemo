@@ -2,13 +2,33 @@ import axios from "axios";
 import router from "./router";
 import "./axios";
 
+var client = null;
+
+function getRoomRef() {
+  let ref = sessionStorage.getItem("roomRef");
+  if (ref === null) {
+    ref = window.location.pathname.split("/").pop()
+  }
+
+  return ref
+}
+
+function setToken() {
+  localStorage.setItem("token", response.data.token);
+  axios.defaults.headers.common["token"] = localStorage.getItem("token");
+}
+
+function setRoomRef() {
+  sessionStorage.setItem("roomRef", response.data.roomRef);
+  axios.defaults.headers.common["roomRef"] = sessionStorage.getItem("roomRef");
+}
+
 // --- Entry ---
 
 export const authenticate = async (form) => {
   try {
     const response = await axios.post("login", form);
-    localStorage.setItem("token", response.data.token);
-    axios.defaults.headers.common["token"] = localStorage.getItem("token");
+    setToken();
 
     router.push("/room");
   } catch (e) {
@@ -19,8 +39,7 @@ export const authenticate = async (form) => {
 export const registration = async (form) => {
   try {
     const response = await axios.post("register", form);
-    localStorage.setItem("token", response.data.token);
-    axios.defaults.headers.common["token"] = localStorage.getItem("token");
+    setToken();
 
     router.push("/room");
   } catch (e) {
@@ -33,8 +52,7 @@ export const registration = async (form) => {
 export const createRoom = async () => {
   try {
     const response = await axios.post("room", {});
-    sessionStorage.setItem("roomRef", response.data.roomRef);
-    axios.defaults.headers.common["roomRef"] = sessionStorage.getItem("roomRef");
+    setRoomRef();
 
     router.push("/role");
   } catch (e) {
@@ -45,8 +63,7 @@ export const createRoom = async () => {
 export const takeRandRoom = async () => {
   try {
     const response = await axios.get("room/random");
-    sessionStorage.setItem("roomRef", response.data.roomRef);
-    axios.defaults.headers.common["roomRef"] = sessionStorage.getItem("roomRef");
+    setRoomRef();
 
     router.push("/role");
   } catch (e) {
@@ -55,7 +72,7 @@ export const takeRandRoom = async () => {
 };
 
 export const takeAmountUsersRoom = async () => {
-  const response = await axios.get("room/user/amount");
+  const response = await axios.get("room/amount/user");
   return response.data;
 };
 
@@ -63,7 +80,7 @@ export const takeAmountUsersRoom = async () => {
 
 export const defRoleTeam = async (json) => {
   try {
-    json.roomRef = sessionStorage.getItem("roomRef");
+    json.roomRef = getRoomRef();
     const response = await axios.post("user", json);
 
     router.push({
@@ -83,7 +100,7 @@ export const logout = async () => {
 };
 
 export const getUserInfo = async () => {
-  const ref = sessionStorage.getItem("roomRef");
+  const ref = getRoomRef();
   const response = await axios.get(`/user/${ref}`);
 
   return response.data;
@@ -91,7 +108,7 @@ export const getUserInfo = async () => {
 
 export const takeRoom = async () => {
   try {
-    const ref = sessionStorage.getItem("roomRef");
+    const ref = getRoomRef();
     const response = await axios.get(`/room/${ref}`);
 
     return response.data;
@@ -101,44 +118,35 @@ export const takeRoom = async () => {
   }
 }
 
-var stompClient = null;
-const connect = () => {
+export const connect = (cb) => {
   const Stomp = require("stompjs");
   var SockJS = require("sockjs-client");
+
   let socket = new SockJS("http://localhost:8085/ws");
 
-  const roomRef = sessionStorage.getItem("roomRef");
-  stompClient = Stomp.over(socket);
+  client = Stomp.over(socket);
 
-  var headers = {
-    roomRef: sessionStorage.getItem("roomRef")
-  };
-
-  // stompClient.connect({}, onConnected, onError);
-  stompClient.connect({}, frame => {
-    console.log('Connected: ' + frame)
-    stompClient.subscribe("/user/messages", () => {}, headers);
-  })
+  client.connect({}, () => {
+    const ref = getRoomRef();
+    client.subscribe(`/rooms/${ref}/messages`, cb);
+  });
 };
 
 export const sendMessages = (content) => {
   const message = {
-    roomRef: sessionStorage.getItem("roomRef"),
-    userToken: localStorage.getItem("token"),
     userText: content,
     createdOn: new Date(),
   };
 
-  stompClient.send("/app/chat", {
+  client.send("/app/chat", {
+    roomRef: getRoomRef(),
     token: localStorage.getItem("token")
   }, JSON.stringify(message));
 };
 
 export const getChatMessages = async () => {
-  const roomRef = sessionStorage.getItem("roomRef");
-  const response = await axios.get(`/messages/${roomRef}`);
+  const ref = getRoomRef();
+  const response = await axios.get(`/chat/${ref}/history`);
 
   return response.data;
 };
-
-connect();
