@@ -13,12 +13,12 @@ function getRoomRef() {
   return ref
 }
 
-function setToken() {
-  localStorage.setItem("token", response.data.token);
-  axios.defaults.headers.common["token"] = localStorage.getItem("token");
+function setToken(response) {
+  sessionStorage.setItem("token", response.data.token);
+  axios.defaults.headers.common["token"] = sessionStorage.getItem("token");
 }
 
-function setRoomRef() {
+function setRoomRef(response) {
   sessionStorage.setItem("roomRef", response.data.roomRef);
   axios.defaults.headers.common["roomRef"] = sessionStorage.getItem("roomRef");
 }
@@ -28,7 +28,7 @@ function setRoomRef() {
 export const authenticate = async (form) => {
   try {
     const response = await axios.post("login", form);
-    setToken();
+    setToken(response);
 
     router.push("/room");
   } catch (e) {
@@ -39,7 +39,7 @@ export const authenticate = async (form) => {
 export const registration = async (form) => {
   try {
     const response = await axios.post("register", form);
-    setToken();
+    setToken(response);
 
     router.push("/room");
   } catch (e) {
@@ -52,7 +52,7 @@ export const registration = async (form) => {
 export const createRoom = async () => {
   try {
     const response = await axios.post("room", {});
-    setRoomRef();
+    setRoomRef(response);
 
     router.push("/role");
   } catch (e) {
@@ -63,7 +63,7 @@ export const createRoom = async () => {
 export const takeRandRoom = async () => {
   try {
     const response = await axios.get("room/random");
-    setRoomRef();
+    setRoomRef(response);
 
     router.push("/role");
   } catch (e) {
@@ -95,7 +95,8 @@ export const defRoleTeam = async (json) => {
 // --- Dashboard ---
 
 export const logout = async () => {
-  localStorage.removeItem("token");
+  const response = await axios.patch(`/user/logout`);
+  sessionStorage.removeItem("token");
   router.push("/login");
 };
 
@@ -103,6 +104,11 @@ export const getUserInfo = async () => {
   const ref = getRoomRef();
   const response = await axios.get(`/user/${ref}`);
 
+  return response.data;
+}
+
+export const getFullUserInfo = async () => {
+  const response = await axios.get("/user");
   return response.data;
 }
 
@@ -140,11 +146,11 @@ export const sendMessages = (content) => {
 
   client.send("/app/chat", {
     roomRef: getRoomRef(),
-    token: localStorage.getItem("token")
+    token: sessionStorage.getItem("token")
   }, JSON.stringify(message));
 };
 
-export const getChatMessages = async () => {
+export const getChatHistoryMessages = async () => {
   const ref = getRoomRef();
   const response = await axios.get(`/chat/${ref}/history`);
 

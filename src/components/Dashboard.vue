@@ -17,6 +17,7 @@
           </div>
           <div class="ml-2 font-bold text-2xl">Chat CodeNames</div>
         </div>
+        <!-- О себе -->
         <div
           :class="[
             userBackground ? 'bg-red-200' : 'bg-indigo-200'
@@ -25,16 +26,16 @@
         >
           <div
             :class="{
-              'border-yellow-300 border-2 text-yellow-200': !userBackground && this.user.info.captain,
-              'border-yellow-500 border-2 text-yellow-500': userBackground && this.user.info.captain,
-              'font-bold border-2 border-indigo-300 text-indigo-400': !userBackground && !this.user.info.captain,
-              'font-bold border-2 border-red-300 text-red-400': userBackground && !this.user.info.captain,
+              'border-yellow-300 border-2 text-yellow-200': !userBackground && userCaptain,
+              'border-yellow-500 border-2 text-yellow-500': userBackground && userCaptain,
+              'font-bold border-2 border-indigo-300 text-indigo-400': !userBackground && !userCaptain,
+              'font-bold border-2 border-red-300 text-red-400': userBackground && !userCaptain,
             }"
             class="h-10 w-20 text-center pt-2 rounded-full overflow-hidden justify-center"
-          >{{ this.user.info.userName }}</div>
+          >{{ userLetter }}</div>
           <div class="text-sm font-semibold mt-2">{{ this.user.info.userName }}</div>
           <div class="text-xs text-gray-500">
-            <p v-if="this.user.info.captain">captain</p>
+            <p v-if="userCaptain">captain</p>
             <p v-else>player</p>
           </div>
           <button
@@ -55,6 +56,7 @@
             >выйти</a>
           </div>
         </div>
+        <!-- Список команд -->
         <div class="flex flex-col mt-8">
           <div class="flex flex-row items-center justify-between text-base">
             <span class="font-bold">Команда красных</span>
@@ -67,7 +69,7 @@
               <button class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2">
                 <div
                   :class="[
-                    teams.red.captain === player ? 'border-2 border-yellow-500 shadow-inner' : ''
+                    teams.red.captain === player ? 'border-2 border-yellow-400 shadow-inner' : ''
                   ]"
                   class="flex items-center justify-center h-8 w-8 bg-red-200 rounded-full"
                 >{{ player[0] }}</div>
@@ -99,40 +101,21 @@
       <div class="flex flex-col flex-auto h-full p-6">
         <div class="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
           <div class="flex flex-col h-full overflow-x-auto mb-4">
+            <!-- Чат -->
             <div class="flex flex-col h-full">
-              <div class="grid grid-cols-12 gap-y-2">
-                <!-- чужие сообщения -->
-                <div class="col-start-1 col-end-8 p-3 rounded-lg">
-                  <div class="flex flex-row items-center">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative ml-3 text-sm bg-white py-2 px-4 shadow rounded-xl">
-                      <div>Hey How are you today?</div>
-                    </div>
-                  </div>
-                </div>
-                <!-- свои сообщения -->
-                <div class="col-start-6 col-end-13 p-3 rounded-lg">
-                  <div class="flex items-center justify-start flex-row-reverse">
-                    <div
-                      class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-500 flex-shrink-0"
-                    >A</div>
-                    <div class="relative mr-3 text-sm bg-indigo-100 py-2 px-4 shadow rounded-xl">
-                      <div>I'm ok what about you? {{ message }}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <chat :messages="messages" />
             </div>
           </div>
+          <!-- Поле ввода -->
           <div class="flex flex-row items-center h-16 rounded-xl bg-white w-full px-4">
             <div class="flex-grow ml-4">
               <div class="relative w-full">
                 <input
                   v-model="message"
+                  @keyup.enter="sendMessage"
+                  placeholder="Введите сообщение"
                   type="text"
-                  class="flex w-full border rounded-xl focus:outline-none focus:border-indigo-300 pl-4 h-10"
+                  class="flex w-full rounded-xl focus:outline-none pl-4 h-10"
                 />
               </div>
             </div>
@@ -140,18 +123,20 @@
               <button
                 @click.prevent="sendMessage"
                 :disabled="!isMessage"
-                :class="[
-                  isMessage ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-indigo-300'
-                ]"
+                :class="{
+                  'bg-indigo-300': !userBackground && !isMessage,
+                  'bg-red-300': userBackground && !isMessage,
+                  'bg-indigo-500 hover:bg-indigo-600': !userBackground && isMessage,
+                  'bg-red-500 hover:bg-red-600': userBackground && isMessage,
+                }"
                 class="flex items-center justify-center rounded-xl text-white px-4 py-1 flex-shrink-0"
               >
-                <span>Send</span>
-                <span class="ml-2">
+                <span>
                   <svg
-                    class="w-4 h-4 transform rotate-45 -mt-px"
+                    class="w-5 h-8 transform rotate-45 -mt-px"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    viewBox="0 0 24 28"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
@@ -177,28 +162,26 @@ import {
   getUserInfo,
   takeRoom,
   sendMessages,
-  getChatMessages,
+  getChatHistoryMessages,
+  getFullUserInfo,
   connect,
 } from "../api";
+
+import Error from "./Error.vue";
+import Chat from "./Chat.vue";
 
 export default {
   name: "Dashboard",
   components: {
     Error,
+    Chat,
   },
 
   data() {
     return {
       message: "",
-
+      messageHistory: [],
       messages: [],
-
-      messageHistory: {
-        user: {
-          info: {},
-          team: "",
-        },
-      },
 
       teams: {
         red: {
@@ -215,6 +198,8 @@ export default {
         info: {},
         team: "",
       },
+
+      error: "",
     };
   },
 
@@ -224,20 +209,27 @@ export default {
     },
 
     async userInfo() {
-      console.log("user = " + JSON.stringify(this.user));
+      let info = await getFullUserInfo();
+      alert(JSON.stringify(info));
     },
 
     sendMessage() {
       sendMessages(this.message);
       this.message = "";
     },
+
+    timeMessage(t) {
+      let time = new Date(t);
+      return time.toTimeString().split(" ")[0].substring(0, 5);
+    },
   },
 
   async mounted() {
     connect((msg) => {
-      console.log("mes1 = " + msg.body);
-      this.messages.push(msg.body);
+      this.messages.push(JSON.parse(msg.body));
     });
+
+    // ---
 
     this.user.info = await getUserInfo();
     let json = await takeRoom();
@@ -287,21 +279,11 @@ export default {
         }
       });
     }
-
-    console.log("blue = " + JSON.stringify(this.teams.blue));
-    console.log("red = " + JSON.stringify(this.teams.red));
-
-    // chatMessages: {
-    //   user: {
-    //     info: {},
-    //     team: "",
-    //   },
-    // },
-    let messages = await getChatMessages();
-    // console.log("messages = " + JSON.stringify(messages));
   },
 
-  created() {},
+  async created() {
+    this.messageHistory = JSON.stringify(await getChatHistoryMessages());
+  },
 
   computed: {
     isMessage() {
@@ -309,7 +291,19 @@ export default {
     },
 
     userBackground() {
-      return this.user.team == "Red" ? true : false;
+      return this.user.team === "Red" ? true : false;
+    },
+
+    userCaptain() {
+      return this.user.info.captain;
+    },
+
+    userLetter() {
+      return String(this.user.info.userName).charAt(0);
+    },
+
+    userMyName() {
+      return this.user.info.userName;
     },
   },
 };
