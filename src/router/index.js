@@ -11,7 +11,10 @@ import NotFound from "../components/NotFound.vue"
 
 Vue.use(Router)
 
-const routes = [{
+const routes = [
+  
+  { path: '/', redirect: { name: 'room' }},
+  {
     path: "/room/*",
     name: "dashboard",
     component: Dashboard,
@@ -54,8 +57,8 @@ const router = new Router({
   base: process.env.BASE_URL,
 });
 
-router.beforeEach((to, from, next) => {
-  next();
-})
+// router.beforeEach((to, from, next) => {
+//   next();
+// })
 
 export default router;
