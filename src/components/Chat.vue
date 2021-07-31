@@ -41,8 +41,8 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-row items-center h-16 rounded-xl bg-white w-full px-4">
-      <div class="flex-grow ml-4">
+    <div>
+      <div class="flex-grow ml-4 absolute w-9/12 bottom-6 right-32">
         <div class="relative w-full">
           <input
             v-model="messageToSend"
@@ -53,7 +53,7 @@
           />
         </div>
       </div>
-      <div class="ml-4">
+      <div class="ml-4 absolute right-16 bottom-6">
         <button
           @click.prevent="sendMessage"
           :disabled="!isMessage"
