@@ -71,6 +71,19 @@
               class="text-center mt-3 flex flex-col h-6 w-20 rounded-full text-white cursor-pointer"
             >выйти</a>
           </div>
+          <div class="flex flex-row items-center">
+            <select
+              v-model="selectedHistory"
+              v-bind:title="'вывести историю беседы'"
+              :class="[
+                userBackground ? 'bg-red-500 hover:bg-red-600' : 'bg-indigo-500 hover:bg-indigo-600'
+              ]"
+              class="form-select w-full mt-3 pt-1 -mb-3 text-center rounded-full cursor-pointer border-none text-red-50"
+            >
+              <option class="border-none">вся история</option>
+              <option class="border-none">история команды</option>
+            </select>
+          </div>
         </div>
         <!-- Список команд -->
         <div class="flex flex-col mt-8">
@@ -80,7 +93,7 @@
               class="flex items-center justify-center bg-gray-300 h-5 w-5 rounded-full"
             >{{ teams.red.players.length + (this.user.team === "Red" ? 1 : 0)}}</span>
           </div>
-          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
+          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-44 overflow-y-auto">
             <div v-for="(player, idx) in teams.red.players" :key="idx">
               <button
                 v-bind:title="String('информация о ' + player)"
@@ -121,7 +134,7 @@
               class="flex items-center justify-center bg-gray-300 h-5 w-5 rounded-full"
             >{{ teams.blue.players.length + (this.user.team === "Blue" ? 1 : 0)}}</span>
           </div>
-          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-48 overflow-y-auto">
+          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-44 overflow-y-auto">
             <div v-for="(player, idx) in teams.blue.players" :key="'A' + idx">
               <button
                 v-bind:title="String('информация о ' + player)"
@@ -160,7 +173,7 @@
       </div>
       <div class="flex flex-col flex-auto h-full p-6">
         <div class="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
-          <chat v-bind:user="user" />
+          <chat v-bind:user="user" v-bind:selectedHistory="selectedHistory" />
         </div>
       </div>
     </div>
@@ -213,6 +226,8 @@ export default {
 
       infoUserModal: [],
       infoPlayerModal: [],
+
+      selectedHistory: "вся история",
     };
   },
 

@@ -88,18 +88,25 @@
 </template>
 
 <script>
-import { sendMessages, getChatHistoryMessages, connect } from "../api";
+import {
+  sendMessages,
+  getChatAllHistoryMessages,
+  connect,
+  getChatTeamHistoryMessages,
+} from "../api";
 export default {
   name: "Chat",
 
   props: {
     user: Object,
+    selectedHistory: String,
   },
 
   data() {
     return {
       messages: [],
       messageToSend: "",
+      messageToCome: "",
     };
   },
 
@@ -122,6 +129,16 @@ export default {
     userMyName() {
       return this.user.info.userName;
     },
+
+    async getAllHistory() {
+      let messagesHistory = await getChatAllHistoryMessages();
+      this.messages.push(...messagesHistory);
+    },
+
+    async getTeamHistory() {
+      let messagesTeamHistor = await getChatTeamHistoryMessages();
+      this.messages.push(...messagesTeamHistor);
+    },
   },
 
   computed: {
@@ -136,15 +153,28 @@ export default {
 
   async mounted() {
     connect((msg) => {
+      // this.messageToCome = JSON.parse(msg.body);
       this.messages.push(JSON.parse(msg.body));
     });
 
-    let messagesHistory = await getChatHistoryMessages();
-    this.messages.push(...messagesHistory);
+    this.getAllHistory();
   },
 
   updated() {
     this.$nextTick(() => this.scrollToEnd());
+  },
+
+  watch: {
+    selectedHistory(v) {
+      this.messages = [];
+      if (v === "вся история") {
+        this.getAllHistory();
+      } else if (v === "история команды") {
+        this.getTeamHistory();
+      } else {
+        console.log("error");
+      }
+    },
   },
 };
 </script>

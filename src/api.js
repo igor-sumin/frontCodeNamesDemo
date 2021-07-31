@@ -8,7 +8,7 @@ function getRoomRef() {
   let ref_storage = sessionStorage.getItem("roomRef");
   let ref_path = window.location.pathname.split("/").pop();
 
-  if (ref_storage === null || ref_path !== ref_storage) {
+  if (ref_storage === null || (ref_path !== ref_storage && ref_path !== "role")) {
     return ref_path
   }
 
@@ -157,9 +157,16 @@ export const sendMessages = (content) => {
   }, JSON.stringify(message));
 };
 
-export const getChatHistoryMessages = async () => {
+export const getChatAllHistoryMessages = async () => {
   const ref = getRoomRef();
-  const response = await axios.get(`/chat/${ref}/history`);
+  const response = await axios.get(`/chat/${ref}/history/all`);
 
   return response.data;
 };
+
+export const getChatTeamHistoryMessages = async () => {
+  const ref = getRoomRef();
+  const response = await axios.get(`/chat/${ref}/history/team`);
+
+  return response.data;
+}
