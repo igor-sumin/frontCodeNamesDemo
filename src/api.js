@@ -5,12 +5,14 @@ import "./axios";
 var client = null;
 
 function getRoomRef() {
-  let ref = sessionStorage.getItem("roomRef");
-  if (ref === null) {
-    ref = window.location.pathname.split("/").pop()
+  let ref_storage = sessionStorage.getItem("roomRef");
+  let ref_path = window.location.pathname.split("/").pop();
+
+  if (ref_storage === null || ref_path !== ref_storage) {
+    return ref_path
   }
 
-  return ref
+  return ref_storage;
 }
 
 function setToken(response) {

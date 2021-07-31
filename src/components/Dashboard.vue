@@ -47,9 +47,13 @@
             class="pl-4 mt-3 flex flex-col h-6 w-20 rounded-full text-white"
           >о себе</button>
           <info-modal :showing="showUserModal">
-            <h2 class="text-xl font-bold text-gray-900">{{ tableInfo(infoUserModal).split('-')[0] }}</h2>
+            <h2 class="text-xl font-bold text-gray-900">{{ tableInfo(infoUserModal)[0] }}</h2>
             <br />
-            <p class="mb-6">{{ tableInfo(infoUserModal).split('-')[1] }}</p>
+            <p
+              v-for="(userModal, idx) in tableInfo(infoUserModal).slice(1)"
+              :key="'C' + idx"
+              class="mb-6"
+            >{{ userModal }}</p>
             <button
               :class="[
                 userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
@@ -94,9 +98,13 @@
               <info-modal :showing="showPlayerModal">
                 <h2
                   class="text-xl font-bold text-gray-900"
-                >{{ tableInfo(infoPlayerModal, player).split('-')[0] }}</h2>
+                >{{ tableInfo(infoPlayerModal, player)[0] }}</h2>
                 <br />
-                <p class="mb-6">{{ tableInfo(infoPlayerModal, player).split('-')[1] }}</p>
+                <p
+                  v-for="(playerModal, idx) in tableInfo(infoPlayerModal, player).slice(1)"
+                  :key="'D' + idx"
+                  class="mb-6"
+                >{{ playerModal }}</p>
                 <button
                   :class="[
                 userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
@@ -128,6 +136,24 @@
                 >{{ player[0] }}</div>
                 <div class="ml-2 text-sm font-semibold">{{ player }}</div>
               </button>
+              <info-modal :showing="showPlayerModal">
+                <h2
+                  class="text-xl font-bold text-gray-900"
+                >{{ tableInfo(infoPlayerModal, player)[0] }}</h2>
+                <br />
+                <p
+                  v-for="(playerModal, idx) in tableInfo(infoPlayerModal, player).slice(1)"
+                  :key="'E' + idx"
+                  class="mb-6"
+                >{{ playerModal }}</p>
+                <button
+                  :class="[
+                userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
+              ]"
+                  class="text-white px-4 py-2 text-sm uppercase tracking-wide font-bold rounded-lg"
+                  @click="showPlayerModal = false"
+                >Закрыть</button>
+              </info-modal>
             </div>
           </div>
         </div>
@@ -208,22 +234,22 @@ export default {
     tableInfo(info, playerName = this.user.info.userName) {
       var res = [];
 
-      res.push("Пользователь ", playerName, " находится в комнатах:");
+      res.push("Информация о пользователе ", playerName, ":");
       Object.values(info).forEach((value) => {
-        let role = value.captain ? "капитан" : "игрок";
+        let role = value.captain ? "капитаном" : "игроком";
         let team = value.teamName === "Red" ? "красных" : "синих";
         res.push(
-          "- комната ",
+          "-в комнате ",
           value.roomRef,
-          ": ",
+          " является ",
           role,
           " в команде ",
           team,
-          ".\n"
+          "."
         );
       });
 
-      return res.join("");
+      return res.join("").split("-");
     },
   },
 

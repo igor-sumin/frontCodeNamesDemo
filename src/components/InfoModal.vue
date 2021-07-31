@@ -2,7 +2,7 @@
   <Transition name="fade">
     <div
       v-if="showing"
-      class="fixed inset-0 w-full h-screen flex items-center justify-center bg-semi-75"
+      class="z-40 fixed inset-0 w-full h-screen flex items-center justify-center bg-semi-75"
     >
       <div class="relative w-full max-w-2xl bg-white shadow-lg rounded-lg p-8">
         <slot />
