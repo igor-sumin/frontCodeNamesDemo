@@ -56,7 +56,7 @@
             <div class="mb-6">
               <button
                 type="submit"
-                :disabled="!isFormValid || !isEmailValid"
+                :disabled="!isFormValid"
                 class="w-full px-3 py-4 text-white bg-indigo-500 rounded-md focus:bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
               >Создать</button>
             </div>
@@ -94,7 +94,6 @@ export default {
         email: "",
       },
       error: "",
-      reg: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,24}))$/,
     };
   },
 
@@ -105,10 +104,6 @@ export default {
   },
 
   computed: {
-    isEmailValid() {
-      return this.reg.test(this.form.email);
-    },
-
     isFormValid() {
       return this.form;
     },

@@ -11,9 +11,12 @@ import NotFound from "../components/NotFound.vue"
 
 Vue.use(Router)
 
-const routes = [
-  
-  { path: '/', redirect: { name: 'room' }},
+const routes = [{
+    path: '/',
+    redirect: {
+      name: 'room'
+    }
+  },
   {
     path: "/room/*",
     name: "dashboard",

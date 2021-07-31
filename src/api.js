@@ -107,6 +107,11 @@ export const getUserInfo = async () => {
   return response.data;
 }
 
+export const getPlayerInfo = async (userName) => {
+  const response = await axios.get(`/user/username/${userName}`);
+  return response.data;
+}
+
 export const getFullUserInfo = async () => {
   const response = await axios.get("/user");
   return response.data;
