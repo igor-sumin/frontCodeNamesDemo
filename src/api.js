@@ -7,12 +7,13 @@ var client = null;
 function getRoomRef() {
   let ref_storage = sessionStorage.getItem("roomRef");
   let ref_path = window.location.pathname.split("/").pop();
+  const path = [ref_storage, "login", "room"];
 
-  if (ref_storage === null || (ref_path !== ref_storage && ref_path !== "role")) {
-    return ref_path
+  if (ref_storage && path.includes(ref_storage)) {
+    return ref_storage
   }
 
-  return ref_storage;
+  return ref_path;
 }
 
 function setToken(response) {
@@ -30,9 +31,27 @@ function setRoomRef(response) {
 export const authenticate = async (form) => {
   try {
     const response = await axios.post("login", form);
+    const path = ["can't find user team", "not found room"];
     setToken(response);
 
-    router.push("/room");
+    let room = await takeRoom();
+    // существует ли комната
+    if (!path.includes(room)) {
+
+      let user = await getUserInfo();
+      // есть ли у пользователя роль в комнате
+      if (!path.includes(user)) {
+
+        let ref = getRoomRef();
+        router.push({
+          path: `/room/${ref}`
+        });
+      } else {
+        router.push("/role");
+      }
+    } else {
+      router.push("/room");
+    }
   } catch (e) {
     return e.response.data;
   }
@@ -103,10 +122,15 @@ export const logout = async () => {
 };
 
 export const getUserInfo = async () => {
-  const ref = getRoomRef();
-  const response = await axios.get(`/user/${ref}`);
+  try {
+    const ref = getRoomRef();
+    const response = await axios.get(`/user/${ref}`);
 
-  return response.data;
+    return response.data;
+  } catch (e) {
+    router.push("/room");
+    return e.response.data;
+  }
 }
 
 export const getPlayerInfo = async (userName) => {

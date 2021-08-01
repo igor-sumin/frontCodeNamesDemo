@@ -5,12 +5,22 @@ axios.defaults.baseURL = "http://localhost:8085/";
 axios.defaults.headers.common["token"] = sessionStorage.getItem("token");
 axios.defaults.headers.common["roomRef"] = sessionStorage.getItem("roomRef");
 
-// axios.interceptors.response.use(response => {
-//     return response;
-// }, error => {
-//     if (error.response.status === 401) {
-//         router.push("/login");
-//     }
+function setRoomRef() {
+  const path = ["login", "room"];
+  const ref_path = window.location.pathname.split("/").pop();
 
-//     Promise.reject(error);
-// });
+  if (!path.includes(ref_path)) {
+    sessionStorage.setItem("roomRef", ref_path);
+  }
+}
+
+axios.interceptors.response.use(response => {
+  return response;
+}, error => {
+  setRoomRef();
+  if (error.response.status === 401) {
+    router.push("/login");
+  }
+
+  throw error;
+});

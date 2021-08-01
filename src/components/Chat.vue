@@ -143,7 +143,7 @@ export default {
 
   computed: {
     userBackground() {
-      return this.user !== undefined && this.user.team === "Red" ? true : false;
+      return this.user !== undefined && this.user.team === "Red";
     },
 
     isMessage() {

@@ -62,7 +62,7 @@
               :class="[
                 userBackground ? 'bg-red-500 hover:bg-red-600' : 'bg-indigo-500 hover:bg-indigo-600'
               ]"
-              class="form-select w-full mt-3 pt-1 -mb-3 text-center rounded-full cursor-pointer border-none text-red-50"
+              class="form-select w-full mt-3 pt-1 -mb-3 pr-4 text-center rounded-full cursor-pointer border-none text-white"
             >
               <option class="border-none">вся история</option>
               <option class="border-none">история команды</option>
@@ -183,12 +183,12 @@ export default {
         team: "",
       },
 
-      error: "",
+      selectedHistory: "вся история",
 
       showUserModal: false,
       infoUserModal: [],
 
-      selectedHistory: "вся история",
+      error: "",
     };
   },
 
@@ -287,7 +287,7 @@ export default {
 
   computed: {
     userBackground() {
-      return this.user.team === "Red" ? true : false;
+      return this.user.team === "Red";
     },
 
     userCaptain() {
