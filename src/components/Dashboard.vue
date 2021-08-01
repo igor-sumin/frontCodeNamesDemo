@@ -46,22 +46,6 @@
             ]"
             class="pl-4 mt-3 flex flex-col h-6 w-20 rounded-full text-white"
           >о себе</button>
-          <info-modal :showing="showUserModal">
-            <h2 class="text-xl font-bold text-gray-900">{{ tableInfo(infoUserModal)[0] }}</h2>
-            <br />
-            <p
-              v-for="(userModal, idx) in tableInfo(infoUserModal).slice(1)"
-              :key="'C' + idx"
-              class="mb-6"
-            >{{ userModal }}</p>
-            <button
-              :class="[
-                userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
-              ]"
-              class="text-white px-4 py-2 text-sm uppercase tracking-wide font-bold rounded-lg"
-              @click="showUserModal = false"
-            >Закрыть</button>
-          </info-modal>
           <div class="flex flex-row items-center">
             <a
               @click="userLogout"
@@ -108,24 +92,6 @@
                 >{{ player[0] }}</div>
                 <div class="ml-2 text-sm font-semibold">{{ player }}</div>
               </button>
-              <info-modal :showing="showPlayerModal">
-                <h2
-                  class="text-xl font-bold text-gray-900"
-                >{{ tableInfo(infoPlayerModal, player)[0] }}</h2>
-                <br />
-                <p
-                  v-for="(playerModal, idx) in tableInfo(infoPlayerModal, player).slice(1)"
-                  :key="'D' + idx"
-                  class="mb-6"
-                >{{ playerModal }}</p>
-                <button
-                  :class="[
-                userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
-              ]"
-                  class="text-white px-4 py-2 text-sm uppercase tracking-wide font-bold rounded-lg"
-                  @click="showPlayerModal = false"
-                >Закрыть</button>
-              </info-modal>
             </div>
           </div>
           <div class="flex flex-row items-center justify-between text-base mt-6">
@@ -149,26 +115,24 @@
                 >{{ player[0] }}</div>
                 <div class="ml-2 text-sm font-semibold">{{ player }}</div>
               </button>
-              <info-modal :showing="showPlayerModal">
-                <h2
-                  class="text-xl font-bold text-gray-900"
-                >{{ tableInfo(infoPlayerModal, player)[0] }}</h2>
-                <br />
-                <p
-                  v-for="(playerModal, idx) in tableInfo(infoPlayerModal, player).slice(1)"
-                  :key="'E' + idx"
-                  class="mb-6"
-                >{{ playerModal }}</p>
-                <button
-                  :class="[
-                userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
-              ]"
-                  class="text-white px-4 py-2 text-sm uppercase tracking-wide font-bold rounded-lg"
-                  @click="showPlayerModal = false"
-                >Закрыть</button>
-              </info-modal>
             </div>
           </div>
+          <info-modal :showing="showUserModal" @close="showUserModal = false">
+            <h2 class="text-xl font-bold text-gray-900">{{ tableInfo(infoUserModal)[0] }}</h2>
+            <br />
+            <p
+              v-for="(userModal, idx) in tableInfo(infoUserModal).slice(1)"
+              :key="'E' + idx"
+              class="mb-6"
+            >{{ userModal }}</p>
+            <button
+              :class="[
+                userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
+              ]"
+              class="text-white px-4 py-2 text-sm uppercase tracking-wide font-bold rounded-lg"
+              @click="showUserModal = false"
+            >Закрыть</button>
+          </info-modal>
         </div>
       </div>
       <div class="flex flex-col flex-auto h-full p-6">
@@ -222,10 +186,7 @@ export default {
       error: "",
 
       showUserModal: false,
-      showPlayerModal: false,
-
       infoUserModal: [],
-      infoPlayerModal: [],
 
       selectedHistory: "вся история",
     };
@@ -239,29 +200,34 @@ export default {
     async userInfo() {
       this.showUserModal = true;
       this.infoUserModal = await getFullUserInfo();
+      this.infoUserModal.push(this.user.info.userName);
     },
 
     async playerInfo(playerName) {
-      this.showPlayerModal = true;
-      this.infoPlayerModal = await getPlayerInfo(playerName);
+      this.showUserModal = true;
+      this.infoUserModal = await getPlayerInfo(playerName);
+      this.infoUserModal.push(playerName);
     },
 
-    tableInfo(info, playerName = this.user.info.userName) {
+    tableInfo(info) {
       var res = [];
-
-      res.push("Информация о пользователе ", playerName, ":");
+      res.push("Информация о пользователе " + info[info.length - 1] + ": ");
       Object.values(info).forEach((value) => {
         let role = value.captain ? "капитаном" : "игроком";
         let team = value.teamName === "Red" ? "красных" : "синих";
-        res.push(
-          "-в комнате ",
-          value.roomRef,
-          " является ",
-          role,
-          " в команде ",
-          team,
-          "."
-        );
+        let room = value.roomRef;
+
+        if (room !== undefined) {
+          res.push(
+            "-в комнате ",
+            room,
+            " является ",
+            role,
+            " в команде ",
+            team,
+            "."
+          );
+        }
       });
 
       return res.join("").split("-");
