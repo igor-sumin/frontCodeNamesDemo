@@ -7,7 +7,7 @@ var client = null;
 function getRoomRef() {
   let ref_storage = sessionStorage.getItem("roomRef");
   let ref_path = window.location.pathname.split("/").pop();
-  const path = [ref_storage, "login", "room"];
+  const path = [ref_storage, "login", "room", "registration"];
 
   if (ref_storage && path.includes(ref_storage)) {
     return ref_storage
@@ -26,32 +26,35 @@ function setRoomRef(response) {
   axios.defaults.headers.common["roomRef"] = sessionStorage.getItem("roomRef");
 }
 
+async function routeNext(response) {
+  setToken(response);
+
+  let room = await takeRoom();
+  // существует ли комната
+  if (!String(room).includes("not found room")) {
+    let user = await getUserInfo();
+
+    // есть ли у пользователя роль в комнате
+    if (!String(user).includes("can't find")) {
+      let ref = getRoomRef();
+
+      router.push({
+        path: `/room/${ref}`
+      });
+    } else {
+      router.push("/role");
+    }
+  } else {
+    router.push("/room");
+  }
+}
+
 // --- Entry ---
 
 export const authenticate = async (form) => {
   try {
     const response = await axios.post("login", form);
-    const path = ["can't find user team", "not found room"];
-    setToken(response);
-
-    let room = await takeRoom();
-    // существует ли комната
-    if (!path.includes(room)) {
-
-      let user = await getUserInfo();
-      // есть ли у пользователя роль в комнате
-      if (!path.includes(user)) {
-
-        let ref = getRoomRef();
-        router.push({
-          path: `/room/${ref}`
-        });
-      } else {
-        router.push("/role");
-      }
-    } else {
-      router.push("/room");
-    }
+    routeNext(response);
   } catch (e) {
     return e.response.data;
   }
@@ -60,9 +63,7 @@ export const authenticate = async (form) => {
 export const registration = async (form) => {
   try {
     const response = await axios.post("register", form);
-    setToken(response);
-
-    router.push("/room");
+    routeNext(response);
   } catch (e) {
     return e.response.data;
   }
@@ -182,15 +183,23 @@ export const sendMessages = (content) => {
 };
 
 export const getChatAllHistoryMessages = async () => {
-  const ref = getRoomRef();
-  const response = await axios.get(`/chat/${ref}/history/all`);
+  try {
+    const ref = getRoomRef();
+    const response = await axios.get(`/chat/${ref}/history/all`);
 
-  return response.data;
+    return response.data;
+  } catch (e) {
+    console("err = " + e.response.data);
+  }
 };
 
 export const getChatTeamHistoryMessages = async () => {
-  const ref = getRoomRef();
-  const response = await axios.get(`/chat/${ref}/history/team`);
+  try {
+    const ref = getRoomRef();
+    const response = await axios.get(`/chat/${ref}/history/team`);
 
-  return response.data;
+    return response.data;
+  } catch (e) {
+    console("err = " + e.response.data);
+  }
 }

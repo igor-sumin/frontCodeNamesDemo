@@ -6,7 +6,7 @@ axios.defaults.headers.common["token"] = sessionStorage.getItem("token");
 axios.defaults.headers.common["roomRef"] = sessionStorage.getItem("roomRef");
 
 function setRoomRef() {
-  const path = ["login", "room"];
+  const path = ["login", "room", "registration"];
   const ref_path = window.location.pathname.split("/").pop();
 
   if (!path.includes(ref_path)) {
