@@ -18,10 +18,10 @@
           >
             <div
               :class="{
-                'border-indigo-400 border-2 bg-indigo-300 ': message.teamName !== 'Red' && message.isCaptain,
-                'border-yellow-400 border-2 bg-red-300': message.teamName === 'Red' && message.isCaptain,
-                'bg-indigo-300': message.teamName !== 'Red' && !message.isCaptain,
-                'bg-red-300': message.teamName === 'Red' && !message.isCaptain,
+                'border-indigo-400 border-2 bg-indigo-300 ': message.teamName !== 'Red' && message.captain,
+                'border-yellow-400 border-2 bg-red-300': message.teamName === 'Red' && message.captain,
+                'bg-indigo-300': message.teamName !== 'Red' && !message.captain,
+                'bg-red-300': message.teamName === 'Red' && !message.captain,
               }"
               class="flex items-center justify-center h-10 w-10 rounded-full flex-shrink-0"
             >{{ String(message.userName).charAt(0) }}</div>

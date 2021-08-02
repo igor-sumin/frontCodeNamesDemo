@@ -15,7 +15,35 @@
               />
             </svg>
           </div>
-          <div class="ml-2 font-bold text-2xl">Chat CodeNames</div>
+          <div class="ml-2">
+            <button
+              v-bind:title="String('задать новое имя команды')"
+              @click.prevent="showRoomModal = true"
+              class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2"
+            >
+              <div class="font-bold text-2xl">{{ room.name }}</div>
+            </button>
+            <info-modal
+              :showing="showRoomModal"
+              @close="showRoomModal = false; room.confirm = true"
+            >
+              <p class="w-full -pb-4 mb-2">Задайте новое имя комнате:</p>
+              <input
+                v-model="room.name"
+                type="text"
+                placeholder="введите название"
+                class="w-full mb-8 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500 dark:border-gray-600 dark:focus:ring-gray-900 dark:focus:border-gray-500"
+                @keyup.enter="showRoomModal = false; room.confirm = true"
+              />
+              <button
+                :class="[
+                userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
+              ]"
+                class="text-white px-4 py-2 text-sm uppercase tracking-wide font-bold rounded-lg"
+                @click="showRoomModal = false; room.confirm = true"
+              >Подтвердить</button>
+            </info-modal>
+          </div>
         </div>
         <!-- О себе -->
         <div
@@ -131,6 +159,7 @@
               ]"
               class="text-white px-4 py-2 text-sm uppercase tracking-wide font-bold rounded-lg"
               @click="showUserModal = false"
+              @keyup.enter="showUserModal = false"
             >Закрыть</button>
           </info-modal>
         </div>
@@ -151,6 +180,7 @@ import {
   getPlayerInfo,
   takeRoom,
   getFullUserInfo,
+  defNewNameRoom,
 } from "../api";
 
 import Error from "./Error.vue";
@@ -182,6 +212,12 @@ export default {
         info: {},
         team: "",
       },
+
+      room: {
+        name: "",
+        confirm: false,
+      },
+      showRoomModal: false,
 
       selectedHistory: "вся история",
 
@@ -237,6 +273,7 @@ export default {
   async mounted() {
     this.user.info = await getUserInfo();
     let json = await takeRoom();
+    this.room.name = json.roomName;
 
     if (JSON.stringify(json.teams) == "[]") {
       return;
@@ -296,6 +333,22 @@ export default {
 
     userLetter() {
       return String(this.user.info.userName).charAt(0);
+    },
+  },
+
+  watch: {
+    room: {
+      deep: true,
+      async handler() {
+        if (this.room.name.length > 20) {
+          this.room.name = await takeNameRoom();
+        }
+
+        if (this.room.confirm) {
+          await defNewNameRoom(this.room.name);
+          this.room.confirm = false;
+        }
+      },
     },
   },
 };

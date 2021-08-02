@@ -156,6 +156,15 @@ export const takeRoom = async () => {
   }
 }
 
+export const defNewNameRoom = async (name) => {
+  const ref = getRoomRef();
+  await axios.patch(`room/${ref}`, {}, {
+    params: {
+      name: name
+    }
+  });
+}
+
 export const connect = (cb) => {
   const Stomp = require("stompjs");
   var SockJS = require("sockjs-client");
