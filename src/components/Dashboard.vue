@@ -17,7 +17,8 @@
           </div>
           <div class="ml-2">
             <button
-              v-bind:title="String('задать новое имя команды')"
+              v-bind:title="String('задать новое имя команды (если ты капитан)')"
+              :disabled="!userCaptain"
               @click.prevent="showRoomModal = true"
               class="flex flex-row items-center hover:bg-gray-100 rounded-xl p-2"
             >
@@ -45,12 +46,11 @@
             </info-modal>
           </div>
         </div>
-        <!-- О себе -->
         <div
           :class="[
             userBackground ? 'bg-red-200' : 'bg-indigo-200'
           ]"
-          class="flex flex-col border items-center mt-4 w-full py-6 px-4 rounded-lg"
+          class="flex flex-col border items-center mt-2 w-full py-6 px-4 rounded-lg"
         >
           <div
             :class="{
@@ -63,18 +63,18 @@
           >{{ userLetter }}</div>
           <div class="text-sm font-semibold mt-2">{{ this.user.info.userName }}</div>
           <div class="text-xs text-gray-500">
-            <p v-if="userCaptain">captain</p>
-            <p v-else>player</p>
+            <p v-if="userCaptain">капитан</p>
+            <p v-else>игрок</p>
           </div>
-          <button
-            @click.prevent="userInfo"
-            type="button"
-            :class="[
+          <div class="flex flex-row items-center">
+            <button
+              @click.prevent="userInfo"
+              type="button"
+              :class="[
               userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
             ]"
-            class="pl-4 mt-3 flex flex-col h-6 w-20 rounded-full text-white"
-          >о себе</button>
-          <div class="flex flex-row items-center">
+              class="pl-4 mt-3 mr-1 flex flex-col h-6 w-20 rounded-full text-white"
+            >о себе</button>
             <a
               @click="userLogout"
               :class="[
@@ -83,6 +83,15 @@
               class="text-center mt-3 flex flex-col h-6 w-20 rounded-full text-white cursor-pointer"
             >выйти</a>
           </div>
+          <button
+            type="button"
+            v-clipboard:copy="room.link"
+            v-clipboard:success="onCopy"
+            :class="[
+              userBackground ? 'bg-red-500 hover:bg-red-700' : 'bg-indigo-500 hover:bg-indigo-700'
+            ]"
+            class="pl-2 pt-1 mt-3 flex flex-col h-8 w-40 rounded-full text-white"
+          >{{ message }}</button>
           <div class="flex flex-row items-center">
             <select
               v-model="selectedHistory"
@@ -90,7 +99,7 @@
               :class="[
                 userBackground ? 'bg-red-500 hover:bg-red-600' : 'bg-indigo-500 hover:bg-indigo-600'
               ]"
-              class="form-select w-full mt-3 pt-1 -mb-3 pr-4 text-center rounded-full cursor-pointer border-none text-white"
+              class="form-select mt-3 pt-1 -mb-3 pr-3 text-center rounded-full cursor-pointer border-none text-white"
             >
               <option class="border-none">вся история</option>
               <option class="border-none">история команды</option>
@@ -98,14 +107,14 @@
           </div>
         </div>
         <!-- Список команд -->
-        <div class="flex flex-col mt-8">
+        <div class="flex flex-col mt-4">
           <div class="flex flex-row items-center justify-between text-base">
             <span class="font-bold">Команда красных</span>
             <span
               class="flex items-center justify-center bg-gray-300 h-5 w-5 rounded-full"
             >{{ teams.red.players.length + (this.user.team === "Red" ? 1 : 0)}}</span>
           </div>
-          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-44 overflow-y-auto">
+          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-32 overflow-y-auto">
             <div v-for="(player, idx) in teams.red.players" :key="idx">
               <button
                 v-bind:title="String('информация о ' + player)"
@@ -128,7 +137,7 @@
               class="flex items-center justify-center bg-gray-300 h-5 w-5 rounded-full"
             >{{ teams.blue.players.length + (this.user.team === "Blue" ? 1 : 0)}}</span>
           </div>
-          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-44 overflow-y-auto">
+          <div class="flex flex-col space-y-1 mt-4 -mx-2 h-36 overflow-y-auto">
             <div v-for="(player, idx) in teams.blue.players" :key="'A' + idx">
               <button
                 v-bind:title="String('информация о ' + player)"
@@ -216,6 +225,7 @@ export default {
       room: {
         name: "",
         confirm: false,
+        link: window.location.href,
       },
       showRoomModal: false,
 
@@ -225,10 +235,16 @@ export default {
       infoUserModal: [],
 
       error: "",
+      message: "скопировать ссылку",
     };
   },
 
   methods: {
+    onCopy() {
+      this.message = "скопировано";
+      setTimeout(() => (this.message = "скопировать ссылку"), 2000);
+    },
+
     userLogout() {
       logout();
     },
