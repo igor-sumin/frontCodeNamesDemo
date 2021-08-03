@@ -1,12 +1,12 @@
 <template>
-  <span v-if="team.captain && team.players">
-    капитан и {{ team.players }} игрок
-    <my-inner-span :players="team.players" />
+  <span v-if="team.captain && team.players.length">
+    капитан и {{ team.players.length }} игрок
+    <my-inner-span :players="team.players.length" />
   </span>
   <span v-else-if="team.captain">капитан</span>
-  <span v-else-if="team.players">
-    {{ team.players }} игрок
-    <my-inner-span :players="team.players" />
+  <span v-else-if="team.players.length">
+    {{ team.players.length }} игрок
+    <my-inner-span :players="team.players.length" />
   </span>
   <span v-else>никого</span>
 </template>

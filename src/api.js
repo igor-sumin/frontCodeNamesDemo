@@ -2,7 +2,8 @@ import axios from "axios";
 import router from "./router";
 import "./axios";
 
-var client = null;
+let client = null;
+let socket = null;
 
 function getRoomRef() {
   let ref_storage = sessionStorage.getItem("roomRef");
@@ -122,16 +123,11 @@ export const logout = async () => {
   router.push("/login");
 };
 
-export const getUserInfo = async () => {
-  try {
-    const ref = getRoomRef();
-    const response = await axios.get(`/user/${ref}`);
-
-    return response.data;
-  } catch (e) {
-    router.push("/room");
-    return e.response.data;
-  }
+export const getUserInfo = () => {
+  const ref = getRoomRef();
+  return axios.get(`/user/${ref}`)
+    .then(response => response.data)
+    .catch(e => e.response.data);
 }
 
 export const getPlayerInfo = async (userName) => {
@@ -167,10 +163,8 @@ export const defNewNameRoom = async (name) => {
 
 export const connect = (cb) => {
   const Stomp = require("stompjs");
-  var SockJS = require("sockjs-client");
-
-  let socket = new SockJS("http://localhost:8085/ws");
-
+  let SockJS = require("sockjs-client");
+  socket = new SockJS("http://localhost:8085/ws");
   client = Stomp.over(socket);
 
   client.connect({}, () => {
@@ -178,6 +172,11 @@ export const connect = (cb) => {
     client.subscribe(`/rooms/${ref}/messages`, cb);
   });
 };
+
+export const disconnect = () => {
+  console.log("disconnect socket");
+  socket.close();
+}
 
 export const sendMessages = (content) => {
   const message = {

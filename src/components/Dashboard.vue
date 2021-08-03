@@ -188,6 +188,7 @@ import {
   takeRoom,
   getFullUserInfo,
   defNewNameRoom,
+  disconnect,
 } from "../api";
 
 import Error from "./Error.vue";
@@ -234,6 +235,9 @@ export default {
 
       error: "",
       message: "скопировать ссылку",
+
+      timer: "",
+      time: 5000,
     };
   },
 
@@ -267,7 +271,7 @@ export default {
         let team = value.teamName === "Red" ? "красных" : "синих";
         let room = value.roomRef;
 
-        if (room !== undefined) {
+        if (!!room) {
           res.push(
             "-в комнате ",
             room,
@@ -282,58 +286,67 @@ export default {
 
       return res.join("").split("-");
     },
+
+    defTeams(json) {
+      this.room.name = json.roomName;
+
+      if (JSON.stringify(json.teams) == "[]") {
+        return;
+      }
+
+      let [blue, red] = [null, null];
+      if (!!json.teams[1]) {
+        [blue, red] =
+          json.teams[0].teamName === "Blue" ? json.teams : json.teams.reverse();
+      } else {
+        let team = json.teams[0];
+
+        if (team.teamName === "Blue") {
+          blue = team;
+        } else {
+          red = team;
+        }
+      }
+
+      return [blue, red];
+    },
+
+    defTeam(team, teamColor, teamName) {
+      if (teamColor !== null && JSON.stringify(teamColor.users) != "[]") {
+        Object.values(teamColor.users).forEach((value) => {
+          if (!team.players.includes(value.userName)) {
+            if (value.captain) {
+              team.captain = value.userName;
+            }
+
+            if (value.userName == this.user.info.userName) {
+              this.user.team = teamName;
+            } else {
+              team.players.push(value.userName);
+            }
+          }
+        });
+      }
+    },
+
+    async getInfoRoom() {
+      let json = await takeRoom();
+      let [blue, red] = this.defTeams(json);
+
+      this.defTeam(this.teams.blue, blue, "Blue");
+      this.defTeam(this.teams.red, red, "Red");
+    },
+
+    cancelAutoUpdate() {
+      clearInterval(this.timer);
+    },
   },
 
-  async mounted() {
-    this.user.info = await getUserInfo();
-    let json = await takeRoom();
-    this.room.name = json.roomName;
+  mounted() {
+    getUserInfo().then((data) => (this.user.info = data));
 
-    if (JSON.stringify(json.teams) == "[]") {
-      return;
-    }
-
-    let [blue, red] = [null, null];
-    if (json.teams[1] === undefined) {
-      let team = json.teams[0];
-
-      if (team.teamName === "Blue") {
-        blue = team;
-      } else {
-        red = team;
-      }
-    } else {
-      [blue, red] =
-        json.teams[0].teamName === "Blue" ? json.teams : json.teams.reverse();
-    }
-
-    if (blue !== null && JSON.stringify(blue.users) != "[]") {
-      Object.values(blue.users).forEach((value) => {
-        if (value.captain) {
-          this.teams.blue.captain = value.userName;
-        }
-
-        if (value.userName == this.user.info.userName) {
-          this.user.team = "Blue";
-        } else {
-          this.teams.blue.players.push(value.userName);
-        }
-      });
-    }
-
-    if (red !== null && JSON.stringify(red.users) != "[]") {
-      Object.values(red.users).forEach((value) => {
-        if (value.captain) {
-          this.teams.red.captain = value.userName;
-        }
-
-        if (value.userName == this.user.info.userName) {
-          this.user.team = "Red";
-        } else {
-          this.teams.red.players.push(value.userName);
-        }
-      });
-    }
+    this.getInfoRoom();
+    this.timer = setInterval(this.getInfoRoom, this.time);
   },
 
   computed: {
@@ -364,6 +377,11 @@ export default {
         }
       },
     },
+  },
+
+  beforeDestroy() {
+    clearInterval(this.timer);
+    disconnect();
   },
 };
 </script>

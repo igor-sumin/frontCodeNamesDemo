@@ -86,15 +86,16 @@ export default {
       teams: {
         red: {
           captain: false,
-          players: 0,
+          players: [],
         },
         blue: {
           captain: false,
-          players: 0,
+          players: [],
         },
       },
 
       error: "",
+      time: 10000,
     };
   },
 
@@ -108,48 +109,59 @@ export default {
 
       this.error = await defRoleTeam(json);
     },
+
+    async getInfoRoom() {
+      let json = await takeRoom();
+      let [blue, red] = this.defTeams(json);
+
+      this.defTeam(this.teams.blue, blue);
+      this.defTeam(this.teams.red, red);
+    },
+
+    defTeams(json) {
+      if (JSON.stringify(json.teams) == "[]") {
+        return;
+      }
+
+      let [blue, red] = [null, null];
+      if (!!json.teams[1]) {
+        [blue, red] =
+          json.teams[0].teamName === "Blue" ? json.teams : json.teams.reverse();
+      } else {
+        let team = json.teams[0];
+
+        if (team.teamName === "Blue") {
+          blue = team;
+        } else {
+          red = team;
+        }
+      }
+
+      return [blue, red];
+    },
+
+    defTeam(team, teamColor) {
+      if (teamColor !== null && JSON.stringify(teamColor.users) != "[]") {
+        Object.values(teamColor.users).forEach((value) => {
+          if (!team.players.includes(value.userName)) {
+            if (value.captain) {
+              team.captain = value.captain;
+            } else {
+              team.players.push(value.userName);
+            }
+          }
+        });
+      }
+    },
+
+    cancelAutoUpdate() {
+      clearInterval(this.timer);
+    },
   },
 
   async mounted() {
-    let json = await takeRoom();
-
-    if (JSON.stringify(json.teams) == "[]") {
-      return;
-    }
-
-    let [blue, red] = [null, null];
-    if (json.teams[1] === undefined) {
-      let team = json.teams[0];
-
-      if (team.teamName === "Blue") {
-        blue = team;
-      } else {
-        red = team;
-      }
-    } else {
-      [blue, red] =
-        json.teams[0].teamName === "Blue" ? json.teams : json.teams.reverse();
-    }
-
-    if (blue !== null && JSON.stringify(blue.users) != "[]") {
-      Object.values(blue.users).forEach((value) => {
-        if (value.captain) {
-          this.teams.blue.captain = value.captain;
-        } else {
-          this.teams.blue.players += 1;
-        }
-      });
-    }
-
-    if (red !== null && JSON.stringify(red.users) != "[]") {
-      Object.values(red.users).forEach((value) => {
-        if (value.captain) {
-          this.teams.red.captain = value.captain;
-        } else {
-          this.teams.red.players += 1;
-        }
-      });
-    }
+    this.getInfoRoom();
+    this.timer = setInterval(this.getInfoRoom, this.time);
   },
 
   computed: {
@@ -163,6 +175,10 @@ export default {
     isFormValid() {
       return this.form.role && this.form.team;
     },
+  },
+
+  beforeDestroy() {
+    this.cancelAutoUpdate();
   },
 };
 </script>

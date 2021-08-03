@@ -56,6 +56,7 @@ export default {
     return {
       ref: "",
       error: "",
+      timer: "",
       qntRooms: 0,
     };
   },
@@ -70,16 +71,29 @@ export default {
       this.error = await takeRandRoom();
       console.log("ref = " + sessionStorage.getItem("roomRef"));
     },
+
+    async defQntRooms() {
+      this.qntRooms = await takeAmountUsersRoom();
+    },
+
+    cancelAutoUpdate() {
+      clearInterval(this.timer);
+    },
   },
 
   async mounted() {
-    this.qntRooms = await takeAmountUsersRoom();
+    this.defQntRooms();
+    this.timer = setInterval(this.defQntRooms, 5000);
   },
 
   computed: {
     isQntRooms() {
       return this.qntRooms;
     },
+  },
+
+  beforeDestroy() {
+    this.cancelAutoUpdate();
   },
 };
 </script>

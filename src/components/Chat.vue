@@ -7,30 +7,30 @@
             v-for="message in messages"
             :key="message.info.createdOn"
             :class="[
-          message.userName === userMyName() ? 'col-start-6 col-end-13' : 'col-start-1 col-end-8'
-        ]"
+              message.userName === userMyName() ? 'col-start-6 col-end-13' : 'col-start-1 col-end-8'
+            ]"
             class="p-3 rounded-lg"
           >
             <div
               :class="[
-            message.userName === userMyName() ? 'justify-start flex-row-reverse' : 'flex-row'
-          ]"
+                message.userName === userMyName() ? 'justify-start flex-row-reverse' : 'flex-row'
+              ]"
               class="flex items-center"
             >
               <div
                 :class="{
-                'border-indigo-400 border-2 bg-indigo-300 ': message.teamName !== 'Red' && message.captain,
-                'border-yellow-400 border-2 bg-red-300': message.teamName === 'Red' && message.captain,
-                'bg-indigo-300': message.teamName !== 'Red' && !message.captain,
-                'bg-red-300': message.teamName === 'Red' && !message.captain,
-              }"
+                  'border-indigo-400 border-2 bg-indigo-300 ': message.teamName !== 'Red' && message.captain,
+                  'border-yellow-400 border-2 bg-red-300': message.teamName === 'Red' && message.captain,
+                  'bg-indigo-300': message.teamName !== 'Red' && !message.captain,
+                  'bg-red-300': message.teamName === 'Red' && !message.captain,
+                }"
                 class="flex items-center justify-center h-10 w-10 rounded-full flex-shrink-0"
               >{{ String(message.userName).charAt(0) }}</div>
               <div
                 :class="[
-                message.teamName === 'Red' ? 'bg-red-100' : 'bg-indigo-100',
-                message.userName === userMyName() ? 'mr-3' : 'ml-3'
-              ]"
+                  message.teamName === 'Red' ? 'bg-red-100' : 'bg-indigo-100',
+                  message.userName === userMyName() ? 'mr-3' : 'ml-3'
+                ]"
                 class="relative px-2 shadow rounded-xl"
               >
                 <div class="w-full flex justify-end">
@@ -96,6 +96,7 @@ import {
   connect,
   getChatTeamHistoryMessages,
 } from "../api";
+
 export default {
   name: "Chat",
 
