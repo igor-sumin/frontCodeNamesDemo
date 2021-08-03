@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-screen antialiased text-gray-800">
     <div class="flex flex-row w-full overflow-x-hidden">
-      <div class="flex flex-col py-8 pl-6 pr-2 w-70 bg-white flex-shrink-0">
+      <div class="flex flex-col py-5 pl-6 pr-2 w-70 bg-white flex-shrink-0">
         <div class="flex flex-row items-center justify-center w-full">
           <div
             class="flex items-center justify-center rounded-2xl text-indigo-700 bg-indigo-100 h-10 w-10"
@@ -174,9 +174,7 @@
         </div>
       </div>
       <div class="flex flex-col flex-auto h-full p-6">
-        <div class="flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-100 h-full p-4">
-          <chat v-bind:user="user" v-bind:selectedHistory="selectedHistory" />
-        </div>
+        <chat v-bind:user="user" v-bind:selectedHistory="selectedHistory" />
       </div>
     </div>
   </div>
