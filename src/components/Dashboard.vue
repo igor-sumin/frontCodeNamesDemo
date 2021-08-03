@@ -247,8 +247,8 @@ export default {
       setTimeout(() => (this.message = "скопировать ссылку"), 2000);
     },
 
-    userLogout() {
-      logout();
+    async userLogout() {
+      await logout();
     },
 
     async userInfo() {

@@ -120,6 +120,7 @@ export const defRoleTeam = async (json) => {
 export const logout = async () => {
   const response = await axios.patch(`/user/logout`);
   sessionStorage.removeItem("token");
+  sessionStorage.removeItem("roomRef");
   router.push("/login");
 };
 

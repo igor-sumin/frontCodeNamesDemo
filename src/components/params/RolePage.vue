@@ -95,7 +95,7 @@ export default {
       },
 
       error: "",
-      time: 10000,
+      time: 3000,
     };
   },
 
@@ -159,7 +159,7 @@ export default {
     },
   },
 
-  async mounted() {
+  mounted() {
     this.getInfoRoom();
     this.timer = setInterval(this.getInfoRoom, this.time);
   },

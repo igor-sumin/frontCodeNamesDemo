@@ -57,6 +57,7 @@ export default {
       ref: "",
       error: "",
       timer: "",
+      time: 3000,
       qntRooms: 0,
     };
   },
@@ -81,9 +82,9 @@ export default {
     },
   },
 
-  async mounted() {
+  mounted() {
     this.defQntRooms();
-    this.timer = setInterval(this.defQntRooms, 5000);
+    this.timer = setInterval(this.defQntRooms, this.time);
   },
 
   computed: {
