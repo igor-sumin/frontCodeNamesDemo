@@ -2,6 +2,7 @@ import axios from "axios"
 import router from "./router";
 
 axios.defaults.baseURL = "http://localhost:8085/";
+// axios.defaults.baseURL = "http://34.118.79.167:8085/";
 axios.defaults.headers.common["token"] = sessionStorage.getItem("token");
 axios.defaults.headers.common["roomRef"] = sessionStorage.getItem("roomRef");
 

@@ -166,6 +166,7 @@ export const connect = (cb) => {
   const Stomp = require("stompjs");
   let SockJS = require("sockjs-client");
   socket = new SockJS("http://localhost:8085/ws");
+  // socket = new SockJS("http://34.118.79.167:8085/ws");
   client = Stomp.over(socket);
 
   client.connect({}, () => {
